@@ -37,6 +37,26 @@ function animate() {
     squirrel.update(delta);
 
     renderer.render(scene, camera);
+    controls.update();
 }
 
 animate();
+
+// Keyboard Controls
+window.addEventListener('keydown', onKeyPress);
+
+function onKeyPress(event) {
+    switch (event.key) {
+        case 'a':
+            squirrel.moveLeft();
+            break;
+        case 'd': 
+            squirrel.moveRight();
+            break;
+        case 'w':
+            squirrel.jump();
+            break;
+        default:
+            console.log(`Key ${event.key} pressed`);
+    }
+}
