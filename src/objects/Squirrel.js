@@ -61,11 +61,13 @@ export default class Squirrel {
     // TODO: Smooth animation of side movements and jump
     moveLeft() {
         this.targetPosition.x -= this.moveDistance;
+        // this.model.position.x -= this.moveDistance;
     }
     moveRight() {
         this.targetPosition.x += this.moveDistance;
+
     }
     jump() {
-        this.model.posi wwtion.y += this.moveDistance;
+        this.model.position.y += this.moveDistance;
     }
 }
