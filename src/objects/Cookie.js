@@ -10,6 +10,12 @@ export default class Cookie {
         this.boundingBox = null;
         this.helper = null;
 
+        // for animation
+        this.elapsedTime = 0;
+        this.baseY = 0;
+        this.floatAmp = 0.5;
+        this.spinSpeed = 1.5;
+
         this.loadModel();
     }
 
@@ -33,6 +39,20 @@ export default class Cookie {
 
     update(delta) {
         if (!this.model) return;
+
+        if (this.boundingBox) {
+            this.boundingBox.setFromObject(this.model);   
+            this.helper.update();
+        }
+
+        this.elapsedTime += delta;
+
+        // spin
+        this.model.rotation.y += this.spinSpeed * delta;
+
+        // float up and down
+        const floatY = this.baseY + Math.sin((this.elapsedTime * 2) * this.floatAmp);
+        this.model.position.y = floatY;
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);   
