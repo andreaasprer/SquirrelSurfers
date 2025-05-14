@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
+import Cookie from './objects/Cookie.js';
 
 const scene = new THREE.Scene();
 
@@ -25,8 +26,9 @@ scene.add(light);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-// load squirrel
+// load objects
 const squirrel = new Squirrel(scene); 
+const cookie =  new Cookie(scene);
 
 const clock = new THREE.Clock();
 
@@ -35,6 +37,16 @@ function animate() {
 
     const delta = clock.getDelta();
     squirrel.update(delta);
+    cookie.update(delta);
+
+
+    // Collision Check
+    if (squirrel.boundingBox && cookie.boundingBox) {
+        if (squirrel.boundingBox.intersectsBox(cookie.boundingBox)) {
+            console.log("Collision Detected");
+            cookie.remove();
+        }
+    }
 
     renderer.render(scene, camera);
     controls.update();
@@ -48,15 +60,18 @@ window.addEventListener('keydown', onKeyPress);
 function onKeyPress(event) {
     switch (event.key) {
         case 'a':
+        case 'ArrowLeft':
             squirrel.moveLeft();
             break;
         case 'd': 
+        case 'ArrowRight':
             squirrel.moveRight();
             break;
         case 'w':
+        case ' ':
+        case 'ArrowUp':
             squirrel.jump();
             break;
-        default:
-            console.log(`Key ${event.key} pressed`);
     }
 }
+

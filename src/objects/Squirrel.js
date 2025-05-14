@@ -55,7 +55,11 @@ export default class Squirrel {
 
         // Update animation
         if (this.mixer) this.mixer.update(delta);
-        if (this.helper) this.helper.update();
+        
+        if (this.boundingBox) {
+            this.boundingBox.setFromObject(this.model);   
+            this.helper.update();
+        }
 
         // Smooth horizontal movement
         this.model.position.lerp(new THREE.Vector3(this.targetPosition.x, this.model.position.y, this.targetPosition.z), this.smoothness);
