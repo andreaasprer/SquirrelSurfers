@@ -24,7 +24,6 @@ export default class Cookie {
 
         loader.load(this.modelPath, (gltf) => {
             this.model = gltf.scene;
-            this.model.position.set(10, 0, 0);
             this.model.scale.set(20, 20, 20);
             this.scene.add(this.model);
 
@@ -46,6 +45,10 @@ export default class Cookie {
         }
 
         this.elapsedTime += delta;
+
+        // move with floor
+        const velocity = 10;
+        this.model.position.z += velocity * delta
 
         // spin
         this.model.rotation.y += this.spinSpeed * delta;

@@ -3,7 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
 import Cookie from './objects/Cookie.js';
 import Terrain from './objects/Terrain.js';
-import { roadWidth, roadLength, LANES } from './WorldConfig.js'
+import { roadWidth, roadLength, LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
 
 
 const scene = new THREE.Scene();
@@ -34,7 +34,27 @@ const terrain = new Terrain(scene);
 
 // load objects
 const squirrel = new Squirrel(scene); 
-const cookie =  new Cookie(scene);
+const cookies = [];
+
+function spawnCookie() {
+    const laneX = LANES[Math.floor(Math.random() * LANES.length)];
+    const zPos = Math.random() * (COOKIE_Z_RANGE.max - COOKIE_Z_RANGE.min) + COOKIE_Z_RANGE.min;
+
+    const cookie = new Cookie(scene);
+
+    const waitUntilLoaded = setInterval(() => {
+        if (cookie.model) {
+            cookie.model.position.set(laneX, 0, zPos);
+            cookies.push(cookie);
+            clearInterval(waitUntilLoaded);
+        }
+    }, 50);
+}
+
+for (let i = 0; i < 10; i++) {
+    spawnCookie();
+}
+
 
 const clock = new THREE.Clock();
 
@@ -44,14 +64,25 @@ function animate() {
     const delta = clock.getDelta();
     terrain.update(delta);
     squirrel.update(delta);
-    cookie.update(delta);
+    
 
+    for (let i = cookies.length - 1; i >= 0; i--) {
+        const cookie = cookies[i];
+        cookie.update(delta);
 
-    // Collision Check
-    if (squirrel.boundingBox && cookie.boundingBox) {
-        if (squirrel.boundingBox.intersectsBox(cookie.boundingBox)) {
-            console.log("Collision Detected");
+        // Collision detection
+        if (squirrel.boundingBox && cookie.boundingBox && cookie.model) {
+            if (squirrel.boundingBox.intersectsBox(cookie.boundingBox)) {
+                cookie.remove();
+                cookies.splice(i, 1);
+                continue;
+            }
+        }
+
+        // despawn cookie when squirrel misses
+        if (cookie.model && cookie.model.position.z > 20) {
             cookie.remove();
+            cookies.splice(i, 1);
         }
     }
 
