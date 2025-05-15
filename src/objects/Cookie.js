@@ -24,7 +24,7 @@ export default class Cookie {
 
         loader.load(this.modelPath, (gltf) => {
             this.model = gltf.scene;
-            this.model.scale.set(20, 20, 20);
+            this.model.scale.set(12, 12, 12);
             this.scene.add(this.model);
 
             this.boundingBox = new THREE.Box3().setFromObject(this.model);

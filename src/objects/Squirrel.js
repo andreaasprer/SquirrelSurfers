@@ -37,7 +37,7 @@ export default class Squirrel {
             this.model = gltf.scene;
             this.model.position.set(0, 0, 0);
             this.targetPosition.copy(this.model.position);
-            this.model.scale.set(0.05, 0.05, 0.05);
+            this.model.scale.set(0.03, 0.03, 0.03);
             this.model.rotateY(Math.PI);
             this.scene.add(this.model);
 

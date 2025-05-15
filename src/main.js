@@ -4,6 +4,7 @@ import Squirrel from './objects/Squirrel.js';
 import Cookie from './objects/Cookie.js';
 import Terrain from './objects/Terrain.js';
 import { roadWidth, roadLength, LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
+import Scooter from './objects/Scooter.js';
 
 
 const scene = new THREE.Scene();
@@ -35,6 +36,7 @@ const terrain = new Terrain(scene);
 // load objects
 const squirrel = new Squirrel(scene); 
 const cookies = [];
+let scooter = null;
 
 function spawnCookie() {
     const laneX = LANES[Math.floor(Math.random() * LANES.length)];
@@ -51,10 +53,18 @@ function spawnCookie() {
     }, 50);
 }
 
+function spawnScooter() {
+    const zPos = Math.random() * (COOKIE_Z_RANGE.max - COOKIE_Z_RANGE.min) + COOKIE_Z_RANGE.min;
+    scooter = new Scooter(scene);
+
+    scooter.model.position.z = zPos;
+}
+
 for (let i = 0; i < 10; i++) {
     spawnCookie();
 }
 
+spawnScooter();
 
 const clock = new THREE.Clock();
 
@@ -64,6 +74,7 @@ function animate() {
     const delta = clock.getDelta();
     terrain.update(delta);
     squirrel.update(delta);
+    scooter.update(delta);
     
 
     for (let i = cookies.length - 1; i >= 0; i--) {
