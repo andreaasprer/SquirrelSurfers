@@ -3,6 +3,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
 import Cookie from './objects/Cookie.js';
 
+import { roadWidth, roadLength, LANES } from './WorldConfig.js'
+
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 0.1, 1000 );

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { LANES, roadWidth } from '../WorldConfig'
 
 export default class Squirrel {
     constructor(scene, modelPath = '../../models/squirrel.glb') {
@@ -9,9 +10,11 @@ export default class Squirrel {
         this.model = null;
 
         // movement and animation settings
-        this.moveDistance = 5;
+        this.lanes = LANES;
+        this.currentLane = 1;
+        this.targetPosition = new THREE.Vector3(this.lanes[this.currentLane], 0, 0);
+        this.moveDistance = roadWidth / 3;
         this.smoothness = 0.1;
-        this.targetPosition = new THREE.Vector3(0, 0, 0);
 
         // jump physics
         this.isJumping = false;
@@ -79,11 +82,17 @@ export default class Squirrel {
     }
 
     moveLeft() {
-        this.targetPosition.x -= this.moveDistance;
+        if (this.currentLane > 0) {
+            this.currentLane--;
+            this.targetPosition.x = this.lanes[this.currentLane];
+        }
     }
 
     moveRight() {
-        this.targetPosition.x += this.moveDistance;
+        if (this.currentLane < this.lanes.length - 1) {
+            this.currentLane++;
+            this.targetPosition.x = this.lanes[this.currentLane];
+        }
     }
 
     jump() {
