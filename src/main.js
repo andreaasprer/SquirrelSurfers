@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
+import Terrain from './objects/Terrain.js';
 
 const scene = new THREE.Scene();
 
@@ -25,6 +26,9 @@ scene.add(light);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
+// load terrain
+const terrain = new Terrain(scene);
+
 // load squirrel
 const squirrel = new Squirrel(scene); 
 
@@ -34,6 +38,7 @@ function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
+    terrain.update(delta);
     squirrel.update(delta);
 
     renderer.render(scene, camera);
