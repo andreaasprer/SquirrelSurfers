@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
 import Cookie from './objects/Cookie.js';
-
+import Terrain from './objects/Terrain.js';
 import { roadWidth, roadLength, LANES } from './WorldConfig.js'
+
 
 const scene = new THREE.Scene();
 
@@ -28,6 +29,9 @@ scene.add(light);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
+// load terrain
+const terrain = new Terrain(scene);
+
 // load objects
 const squirrel = new Squirrel(scene); 
 const cookie =  new Cookie(scene);
@@ -38,6 +42,7 @@ function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
+    terrain.update(delta);
     squirrel.update(delta);
     cookie.update(delta);
 

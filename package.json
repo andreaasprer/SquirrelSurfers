@@ -14,5 +14,13 @@
   },
   "devDependencies": {
     "vite": "^6.3.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreaasprer/SquirrelSurfers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andreaasprer/SquirrelSurfers/issues"
+  },
+  "homepage": "https://github.com/andreaasprer/SquirrelSurfers#readme"
 }
