@@ -3,14 +3,16 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
 import Cookie from './objects/Cookie.js';
 import Terrain from './objects/Terrain.js';
+import SnackCounter from './objects/SnackCounter.js'
 import { roadWidth, roadLength, LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
 import Scooter from './objects/Scooter.js';
+import LivesCounter from './objects/LivesCounter.js';
 
 
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.set(0, 10, 20);
+camera.position.set(0, 5, 30);
 camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -66,6 +68,11 @@ for (let i = 0; i < 10; i++) {
 
 spawnScooter();
 
+
+// Score and Lives Counter
+let score = new SnackCounter();
+let lives = new LivesCounter(squirrel);
+
 const clock = new THREE.Clock();
 
 function animate() {
@@ -84,9 +91,17 @@ function animate() {
         // Collision detection
         if (squirrel.boundingBox && cookie.boundingBox && cookie.model) {
             if (squirrel.boundingBox.intersectsBox(cookie.boundingBox)) {
+                score.increment();                
                 cookie.remove();
                 cookies.splice(i, 1);
                 continue;
+            }
+        }
+
+        // Collision detection with obstacles
+        if (squirrel.boundingBox && scooter.boundingBox && scooter.model) {
+            if (squirrel.boundingBox.intersectsBox(scooter.boundingBox)) {
+                lives.decrement();
             }
         }
 

@@ -9,6 +9,8 @@ export default class Squirrel {
         this.mixer = null;
         this.model = null;
 
+        this.lives = 3;
+
         // movement and animation settings
         this.lanes = LANES;
         this.currentLane = 1;
@@ -100,5 +102,13 @@ export default class Squirrel {
             this.isJumping = true;
             this.verticalVelocity = this.jumpVel;
         }
+    }
+
+    loseLife() {
+        this.lives--;
+    }
+
+    getLivesCnt() {
+        return this.lives;
     }
 }
