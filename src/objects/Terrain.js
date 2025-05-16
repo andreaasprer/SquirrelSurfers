@@ -4,24 +4,24 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 export default class Terrain {
     constructor(scene) {
         this.scene = scene;
-        this.model = null;
+        this.terrainPieces = [];
         this.loader = new GLTFLoader();
         
-        this.loadModel();
+        // Create three terrain pieces at different positions
+        this.createTerrainPiece(0);
+        this.createTerrainPiece(-110);
+        this.createTerrainPiece(-220);
     }
 
-    loadModel() {
+    createTerrainPiece(zPosition) {
         this.loader.load(
             '../models/ThreeLane.glb',
             (gltf) => {
-                this.model = gltf.scene;
-                
-                // Scale and position the terrain
-                this.model.scale.set(1.1, 1, 5); // Adjust scale as needed
-                this.model.position.set(3, -1.7, -40); // Position slightly below ground level
-                
-                // Add the model to the scene
-                this.scene.add(this.model);
+                const model = gltf.scene;
+                model.scale.set(1.1, 1, 5);
+                model.position.set(3, -1.7, zPosition);
+                this.scene.add(model);
+                this.terrainPieces.push(model);
             },
             (xhr) => {
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -34,12 +34,15 @@ export default class Terrain {
 
     update(delta) {
         const velocity = 10; // Units per second
-        if (this.model) {
-            this.model.position.z += velocity * delta;
-            
-            // Reset position when terrain has moved too far
-            if (this.model.position.z > 50) {
-                this.model.position.z = -40;
+        
+        // Move all terrain pieces
+        for (let i = 0; i < this.terrainPieces.length; i++) {
+            const piece = this.terrainPieces[i];
+            piece.position.z += velocity * delta;
+
+            // Reset position when piece moves too far
+            if (piece.position.z > 80) {
+                piece.position.z = -220;
             }
         }
     }
