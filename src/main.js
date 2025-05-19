@@ -8,6 +8,7 @@ import { roadWidth, roadLength, LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
 import Scooter from './objects/Scooter.js';
 import LivesCounter from './objects/LivesCounter.js';
 
+import Background from './objects/Background.js';
 
 const scene = new THREE.Scene();
 
@@ -36,6 +37,10 @@ scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 const terrain = new Terrain(scene);
 
 // load objects
+// load background elements
+const background = new Background(scene);
+
+// load squirrel
 const squirrel = new Squirrel(scene); 
 const cookies = [];
 let scooter = null;
@@ -80,6 +85,7 @@ function animate() {
 
     const delta = clock.getDelta();
     terrain.update(delta);
+    background.update(delta);
     squirrel.update(delta);
     scooter.update(delta);
     
