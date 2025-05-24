@@ -1,40 +1,42 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
-export default class Bench {
-    constructor(scene) {
-        this.scene = scene;
-        this.benches = [];
-        this.loader = new GLTFLoader();
 
-        // Create benches for each side
-        this.createBench(0, -5); // Left side
-        this.createBench(0, 5);  // Right side
-        this.createBench(-110, -5);
-        this.createBench(-110, 5);
-        this.createBench(-220, -5);
-        this.createBench(-220, 5);
+export default class Bench {
+    constructor(scene, xOffset, zPosition) {
+        this.scene = scene;
+        this.loader = new GLTFLoader();
+        this.model = null;
 
         // rewind animation
         this.isRewinding = false;
         this.rewindDistance = rewindDistance;
         this.rewindSpeed = rewindSpeed; // units per second
         this.rewindRemaining = 0;
+
+        this.boundingBox = null;
+        this.helper = null;
+
+        this.createBench(xOffset, zPosition);
     }
 
-    createBench(zPosition, xOffset) {
+    createBench(xOffset, zPosition) {
         this.loader.load(
             '../models/wooden_park_bench.glb',
             (gltf) => {
-                const model = gltf.scene;
+                this.model = gltf.scene;
                 // Scale the bench appropriately
-                model.scale.set(10, 10, 10);
+                this.model.scale.set(5, 5, 5);
                 // Position the bench on the side of the terrain
-                model.position.set(xOffset, -1.7, zPosition);
+                this.model.position.set(xOffset, -1.7, zPosition);
                 // Rotate the bench to face the center
-                model.rotation.y = xOffset > 0 ? -Math.PI / 2 : Math.PI / 2;
-                this.scene.add(model);
-                this.benches.push(model);
+                this.model.rotation.y = xOffset > 0 ? -Math.PI / 2 : Math.PI / 2;
+
+                this.boundingBox = new THREE.Box3().setFromObject(this.model);
+                this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
+                this.scene.add(this.helper);
+
+                this.scene.add(this.model);
             },
             (xhr) => {
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -46,34 +48,27 @@ export default class Bench {
     }
 
     update(delta) {
+        if (!this.model) return;
+
+        if (this.boundingBox) {
+            this.boundingBox.setFromObject(this.model);
+            this.helper.update();
+        }
+
         // handle rewind animation
         if (this.isRewinding) {
             const rewindStep = this.rewindSpeed * delta;
             const stepToTake = Math.min(rewindStep, this.rewindRemaining);
-
-            // Move all benches
-            for (let i = 0; i < this.benches.length; i++) {
-                const bench = this.benches[i];
-                bench.position.z -= stepToTake;
-            }
-
+            this.model.position.z -= stepToTake;
             this.rewindRemaining -= stepToTake;
+
             if (this.rewindRemaining <= 0) {
                 this.isRewinding = false;
             }
-            return;
         }
 
-        // Move all benches
-        for (let i = 0; i < this.benches.length; i++) {
-            const bench = this.benches[i];
-            bench.position.z += velocity * delta;
-
-            // Reset position when bench moves too far
-            if (bench.position.z > 80) {
-                bench.position.z = -220;
-            }
-        }
+        // move with floor
+        this.model.position.z += velocity * delta;
     }
 
     startRewind() {
@@ -83,5 +78,16 @@ export default class Bench {
 
     isCurrentlyRewinding() {
         return this.isRewinding;
+    }
+
+    remove() {
+        if (this.model) {
+            this.scene.remove(this.model);
+        }
+        if (this.helper) {
+            this.scene.remove(this.helper);
+        }
+        this.model = null;
+        this.boundingBox = null;
     }
 }

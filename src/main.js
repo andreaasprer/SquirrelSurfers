@@ -4,7 +4,7 @@ import Squirrel from './objects/Squirrel.js';
 import Cookie from './objects/Cookie.js';
 import Terrain from './objects/Terrain.js';
 import SnackCounter from './objects/SnackCounter.js'
-import {LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
+import { LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
 import Scooter from './objects/Scooter.js';
 import LivesCounter from './objects/LivesCounter.js';
 
@@ -37,8 +37,8 @@ scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 const terrain = new Terrain(scene);
 
 // load objects
-// load background elements
-const bench = new Bench(scene);
+// load benches
+const benches = [];
 
 // load squirrel
 const squirrel = new Squirrel(scene);
@@ -60,6 +60,20 @@ function spawnCookie() {
     }, 50);
 }
 
+function spawnBench() {
+    const laneX = LANES[Math.floor(Math.random() * LANES.length)];
+    const zPos = Math.random() * (COOKIE_Z_RANGE.max - COOKIE_Z_RANGE.min) + COOKIE_Z_RANGE.min;
+
+    const bench = new Bench(scene, laneX, zPos);
+
+    const waitUntilLoaded = setInterval(() => {
+        if (bench.model) {
+            benches.push(bench);
+            clearInterval(waitUntilLoaded);
+        }
+    }, 50);
+}
+
 function spawnScooter() {
     const zPos = Math.random() * (COOKIE_Z_RANGE.max - COOKIE_Z_RANGE.min) + COOKIE_Z_RANGE.min;
     scooter = new Scooter(scene);
@@ -69,6 +83,10 @@ function spawnScooter() {
 
 for (let i = 0; i < 10; i++) {
     spawnCookie();
+}
+
+for (let i = 0; i < 3; i++) {
+    spawnBench();
 }
 
 spawnScooter();
@@ -85,7 +103,6 @@ function animate() {
 
     const delta = clock.getDelta();
     terrain.update(delta);
-    bench.update(delta);
     squirrel.update(delta);
     scooter.update(delta);
 
@@ -110,9 +127,23 @@ function animate() {
         }
 
         // despawn cookie when squirrel misses
-        if (cookie.model && cookie.model.position.z > 20) {
+        if (cookie.model && cookie.model.position.z > 50) {
             cookie.remove();
             cookies.splice(i, 1);
+        }
+    }
+
+    for (let i = benches.length - 1; i >= 0; i--) {
+        const bench = benches[i];
+        bench.update(delta);
+
+        // Skip collision checks during rewind animation
+        if (isRewinding) continue;
+
+        // despawn bench when squirrel misses
+        if (bench.model && bench.model.position.z > 50) {
+            bench.remove();
+            benches.splice(i, 1);
         }
     }
 
@@ -125,7 +156,7 @@ function animate() {
             scooter.startRewind();
             terrain.startRewind();
             cookies.forEach(cookie => cookie.startRewind());
-            bench.startRewind();
+            benches.forEach(bench => bench.startRewind());
         }
     }
 
