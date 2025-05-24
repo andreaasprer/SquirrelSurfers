@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-
-export default class Background {
+import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
+export default class Bench {
     constructor(scene) {
         this.scene = scene;
         this.benches = [];
         this.loader = new GLTFLoader();
-        
+
         // Create benches for each side
         this.createBench(0, -5); // Left side
         this.createBench(0, 5);  // Right side
@@ -14,6 +14,12 @@ export default class Background {
         this.createBench(-110, 5);
         this.createBench(-220, -5);
         this.createBench(-220, 5);
+
+        // rewind animation
+        this.isRewinding = false;
+        this.rewindDistance = rewindDistance;
+        this.rewindSpeed = rewindSpeed; // units per second
+        this.rewindRemaining = 0;
     }
 
     createBench(zPosition, xOffset) {
@@ -40,8 +46,24 @@ export default class Background {
     }
 
     update(delta) {
-        const velocity = 10; // Same velocity as terrain
-        
+        // handle rewind animation
+        if (this.isRewinding) {
+            const rewindStep = this.rewindSpeed * delta;
+            const stepToTake = Math.min(rewindStep, this.rewindRemaining);
+
+            // Move all benches
+            for (let i = 0; i < this.benches.length; i++) {
+                const bench = this.benches[i];
+                bench.position.z -= stepToTake;
+            }
+
+            this.rewindRemaining -= stepToTake;
+            if (this.rewindRemaining <= 0) {
+                this.isRewinding = false;
+            }
+            return;
+        }
+
         // Move all benches
         for (let i = 0; i < this.benches.length; i++) {
             const bench = this.benches[i];
@@ -53,4 +75,13 @@ export default class Background {
             }
         }
     }
-} 
+
+    startRewind() {
+        this.isRewinding = true;
+        this.rewindRemaining = this.rewindDistance;
+    }
+
+    isCurrentlyRewinding() {
+        return this.isRewinding;
+    }
+}

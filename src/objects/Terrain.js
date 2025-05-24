@@ -1,16 +1,23 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
 
 export default class Terrain {
     constructor(scene) {
         this.scene = scene;
         this.terrainPieces = [];
         this.loader = new GLTFLoader();
-        
+
         // Create three terrain pieces at different positions
         this.createTerrainPiece(0);
         this.createTerrainPiece(-110);
         this.createTerrainPiece(-220);
+
+        // rewind animation
+        this.isRewinding = false;
+        this.rewindDistance = rewindDistance;
+        this.rewindSpeed = rewindSpeed;
+        this.rewindRemaining = 0;
     }
 
     createTerrainPiece(zPosition) {
@@ -33,8 +40,25 @@ export default class Terrain {
     }
 
     update(delta) {
-        const velocity = 10; // Units per second
-        
+        // handle rewind animation
+        if (this.isRewinding) {
+            const rewindStep = this.rewindSpeed * delta;
+            const stepToTake = Math.min(rewindStep, this.rewindRemaining);
+
+            // Move all terrain pieces
+            for (let i = 0; i < this.terrainPieces.length; i++) {
+                const piece = this.terrainPieces[i];
+                piece.position.z -= stepToTake;
+            }
+
+            this.rewindRemaining -= stepToTake;
+            if (this.rewindRemaining <= 0) {
+                this.isRewinding = false;
+            }
+            return;
+        }
+
+
         // Move all terrain pieces
         for (let i = 0; i < this.terrainPieces.length; i++) {
             const piece = this.terrainPieces[i];
@@ -45,5 +69,14 @@ export default class Terrain {
                 piece.position.z = -220;
             }
         }
+    }
+
+    startRewind() {
+        this.isRewinding = true;
+        this.rewindRemaining = this.rewindDistance;
+    }
+
+    isCurrentlyRewinding() {
+        return this.isRewinding;
     }
 } 

@@ -4,15 +4,15 @@ import Squirrel from './objects/Squirrel.js';
 import Cookie from './objects/Cookie.js';
 import Terrain from './objects/Terrain.js';
 import SnackCounter from './objects/SnackCounter.js'
-import { roadWidth, roadLength, LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
+import {LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
 import Scooter from './objects/Scooter.js';
 import LivesCounter from './objects/LivesCounter.js';
 
-import Background from './objects/Background.js';
+import Bench from './objects/Bench.js';
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 5, 30);
 camera.lookAt(0, 0, 0);
 
@@ -38,10 +38,10 @@ const terrain = new Terrain(scene);
 
 // load objects
 // load background elements
-const background = new Background(scene);
+const bench = new Bench(scene);
 
 // load squirrel
-const squirrel = new Squirrel(scene); 
+const squirrel = new Squirrel(scene);
 const cookies = [];
 let scooter = null;
 
@@ -85,29 +85,27 @@ function animate() {
 
     const delta = clock.getDelta();
     terrain.update(delta);
-    background.update(delta);
+    bench.update(delta);
     squirrel.update(delta);
     scooter.update(delta);
-    
+
+    // Check if any object is currently rewinding
+    const isRewinding = scooter.isCurrentlyRewinding() || terrain.isCurrentlyRewinding();
 
     for (let i = cookies.length - 1; i >= 0; i--) {
         const cookie = cookies[i];
         cookie.update(delta);
 
+        // Skip collision checks during rewind animation
+        if (isRewinding) continue;
+
         // Collision detection
         if (squirrel.boundingBox && cookie.boundingBox && cookie.model) {
             if (squirrel.boundingBox.intersectsBox(cookie.boundingBox)) {
-                score.increment();                
+                score.increment();
                 cookie.remove();
                 cookies.splice(i, 1);
                 continue;
-            }
-        }
-
-        // Collision detection with obstacles
-        if (squirrel.boundingBox && scooter.boundingBox && scooter.model) {
-            if (squirrel.boundingBox.intersectsBox(scooter.boundingBox)) {
-                lives.decrement();
             }
         }
 
@@ -115,6 +113,19 @@ function animate() {
         if (cookie.model && cookie.model.position.z > 20) {
             cookie.remove();
             cookies.splice(i, 1);
+        }
+    }
+
+    // Collision detection with obstacles (only if not currently rewinding)
+    if (!isRewinding && squirrel.boundingBox && scooter.boundingBox && scooter.model) {
+        if (squirrel.boundingBox.intersectsBox(scooter.boundingBox)) {
+            lives.decrement();
+
+            // Start rewind animation for all objects
+            scooter.startRewind();
+            terrain.startRewind();
+            cookies.forEach(cookie => cookie.startRewind());
+            bench.startRewind();
         }
     }
 
@@ -133,7 +144,7 @@ function onKeyPress(event) {
         case 'ArrowLeft':
             squirrel.moveLeft();
             break;
-        case 'd': 
+        case 'd':
         case 'ArrowRight':
             squirrel.moveRight();
             break;

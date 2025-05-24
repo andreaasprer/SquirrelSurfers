@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { LANES, roadWidth } from '../WorldConfig'
 // import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
+
 
 export default class Scooter {
     constructor(scene) {
@@ -16,13 +18,19 @@ export default class Scooter {
         this.elapsedTime = 0;
         this.moveSpeed = 1;
 
+        // rewind animation
+        this.isRewinding = false;
+        this.rewindDistance = rewindDistance;
+        this.rewindSpeed = rewindSpeed;
+        this.rewindRemaining = 0;
+
         this.loadModel();
     }
 
     loadModel() {
         //const loader = new GLTFLoader();
 
-        const boxGeometry = new THREE.BoxGeometry(roadWidth/3.5, 5, 3, 1, 1, 1);
+        const boxGeometry = new THREE.BoxGeometry(roadWidth / 3.5, 5, 3, 1, 1, 1);
         const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x303030 });
         const box = new THREE.Mesh(boxGeometry, boxMaterial);
 
@@ -33,7 +41,7 @@ export default class Scooter {
         this.boundingBox = new THREE.Box3().setFromObject(this.model);
         this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
         this.scene.add(this.helper);
-        
+
 
         // loader.load(this.modelPath, (gltf) => {
         //     this.model = gltf.scene;
@@ -43,7 +51,7 @@ export default class Scooter {
         //     this.boundingBox = new THREE.Box3().setFromObject(this.model);
         //     this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
         //     this.scene.add(this.helper);
-            
+
         // }, undefined, (error) => {
         //     console.error('Error loading cookie model:', error);
         // });
@@ -53,33 +61,53 @@ export default class Scooter {
         if (!this.model) return;
 
         if (this.boundingBox) {
-            this.boundingBox.setFromObject(this.model);   
+            this.boundingBox.setFromObject(this.model);
             this.helper.update();
         }
 
         this.elapsedTime += delta;
 
-        // move with floor
-        const velocity = 10;
-        this.model.position.z += velocity * delta
+        // handle rewind animation
+        if (this.isRewinding) {
+            const rewindStep = this.rewindSpeed * delta;
+            const stepToTake = Math.min(rewindStep, this.rewindRemaining);
+            this.model.position.z -= stepToTake;
+            this.rewindRemaining -= stepToTake;
+
+            if (this.rewindRemaining <= 0) {
+                this.isRewinding = false;
+            }
+        }
+
+        // normal movement
+        this.model.position.z += velocity * delta;
 
         // oscillate across the lanes
         const left = this.lanes[0];
         const right = this.lanes[this.lanes.length - 1];
 
-        const t = (Math.sin(this.elapsedTime * this.moveSpeed) + 1) /2;
+        const t = (Math.sin(this.elapsedTime * this.moveSpeed) + 1) / 2;
         this.model.position.x = THREE.MathUtils.lerp(left, right, t);
 
         if (this.boundingBox) {
-            this.boundingBox.setFromObject(this.model);   
+            this.boundingBox.setFromObject(this.model);
             this.helper.update();
         }
+    }
+
+    startRewind() {
+        this.isRewinding = true;
+        this.rewindRemaining = this.rewindDistance;
+    }
+
+    isCurrentlyRewinding() {
+        return this.isRewinding;
     }
 
     remove() {
         if (this.model) {
             this.scene.remove(this.model);
-        } 
+        }
         if (this.helper) {
             this.scene.remove(this.helper);
         }

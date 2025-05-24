@@ -37,7 +37,7 @@ export default class Squirrel {
 
         loader.load(this.modelPath, (gltf) => {
             this.model = gltf.scene;
-            this.model.position.set(0, 0, 0);
+            this.model.position.set(0, 0, 10);
             this.targetPosition.copy(this.model.position);
             this.model.scale.set(0.03, 0.03, 0.03);
             this.model.rotateY(Math.PI);
@@ -60,9 +60,9 @@ export default class Squirrel {
 
         // Update animation
         if (this.mixer) this.mixer.update(delta);
-        
+
         if (this.boundingBox) {
-            this.boundingBox.setFromObject(this.model);   
+            this.boundingBox.setFromObject(this.model);
             this.helper.update();
         }
 

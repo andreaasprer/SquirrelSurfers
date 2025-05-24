@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
 
 export default class Cookie {
     constructor(scene, modelPath = '../../models/cookie.glb') {
@@ -16,6 +17,12 @@ export default class Cookie {
         this.floatAmp = 0.5;
         this.spinSpeed = 1.5;
 
+        // rewind animation
+        this.isRewinding = false;
+        this.rewindDistance = rewindDistance;
+        this.rewindSpeed = rewindSpeed;
+        this.rewindRemaining = 0;
+
         this.loadModel();
     }
 
@@ -30,7 +37,7 @@ export default class Cookie {
             this.boundingBox = new THREE.Box3().setFromObject(this.model);
             this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
             this.scene.add(this.helper);
-            
+
         }, undefined, (error) => {
             console.error('Error loading cookie model:', error);
         });
@@ -40,14 +47,25 @@ export default class Cookie {
         if (!this.model) return;
 
         if (this.boundingBox) {
-            this.boundingBox.setFromObject(this.model);   
+            this.boundingBox.setFromObject(this.model);
             this.helper.update();
         }
 
         this.elapsedTime += delta;
 
+        // handle rewind animation
+        if (this.isRewinding) {
+            const rewindStep = this.rewindDistance * delta;
+            const stepToTake = Math.min(rewindStep, this.rewindRemaining);
+            this.model.position.z -= stepToTake;
+            this.rewindRemaining -= stepToTake;
+
+            if (this.rewindRemaining <= 0) {
+                this.isRewinding = false;
+            }
+        }
+
         // move with floor
-        const velocity = 10;
         this.model.position.z += velocity * delta
 
         // spin
@@ -58,15 +76,24 @@ export default class Cookie {
         this.model.position.y = floatY;
 
         if (this.boundingBox) {
-            this.boundingBox.setFromObject(this.model);   
+            this.boundingBox.setFromObject(this.model);
             this.helper.update();
         }
+    }
+
+    startRewind() {
+        this.isRewinding = true;
+        this.rewindRemaining = this.rewindDistance;
+    }
+
+    isCurrentlyRewinding() {
+        return this.isRewinding;
     }
 
     remove() {
         if (this.model) {
             this.scene.remove(this.model);
-        } 
+        }
         if (this.helper) {
             this.scene.remove(this.helper);
         }

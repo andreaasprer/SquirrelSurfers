@@ -14,6 +14,11 @@ export default class LivesCounter {
     }
 
     decrement() {
+        if (this.count == 0) {
+            this.livesDisplay.innerHTML = this.gameOver();
+            return;
+        }
+
         this.squirrel.loseLife();
         this.livesDisplay.innerHTML = this.updateMessage();
     }
@@ -22,4 +27,9 @@ export default class LivesCounter {
         this.count = this.squirrel.getLivesCnt();
         return "Lives: " + this.count;
     }
+
+    gameOver() {
+        return "Game Over";
+    }
+    
 }
