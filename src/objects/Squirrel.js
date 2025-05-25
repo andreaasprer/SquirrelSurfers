@@ -26,6 +26,10 @@ export default class Squirrel {
         this.jumpVel = (2 * this.jumpHeight) / this.apexDuration;
         this.gravity = this.jumpVel / this.apexDuration;
 
+        // platform mechanics
+        this.isOnPlatform = false;
+        this.currentPlatform = null;
+
         this.boundingBox = null;
         this.helper = null;
 
@@ -69,16 +73,18 @@ export default class Squirrel {
         // Smooth horizontal movement
         this.model.position.lerp(new THREE.Vector3(this.targetPosition.x, this.model.position.y, this.targetPosition.z), this.smoothness);
 
-        // Handle jump
-        if (this.isJumping) {
+        // Handle jump and falling
+        if (this.isJumping || !this.isOnPlatform) {
             this.model.position.y += this.verticalVelocity * delta;
             this.verticalVelocity -= this.gravity * delta;
 
-            // Check for landing
+            // Check for landing on ground
             if (this.model.position.y <= 0) {
                 this.model.position.y = 0;
                 this.isJumping = false;
                 this.verticalVelocity = 0;
+                this.isOnPlatform = false;
+                this.currentPlatform = null;
             }
         }
     }
@@ -98,7 +104,7 @@ export default class Squirrel {
     }
 
     jump() {
-        if (!this.isJumping && this.model?.position.y === 0) {
+        if ((!this.isJumping && this.model?.position.y === 0) || this.isOnPlatform) {
             this.isJumping = true;
             this.verticalVelocity = this.jumpVel;
         }
@@ -110,5 +116,30 @@ export default class Squirrel {
 
     getLivesCnt() {
         return this.lives;
+    }
+
+    landOn(platform) {
+        this.isOnPlatform = true;
+        this.currentPlatform = platform;
+
+        // place squirrel on top of platform
+        const yTop = platform.boundingBox.max.y;
+        this.model.position.y = yTop;
+
+        // stop falling from jump
+        this.isJumping = false;
+        this.verticalVelocity = 0;
+
+        if (this.boundingBox) {
+            this.boundingBox.setFromObject(this.model);
+            this.helper.update();
+        }
+    }
+
+    fallOffPlatform() {
+        this.isOnPlatform = false;
+        this.currentPlatform = null;
+        this.isJumping = true;
+        this.verticalVelocity = 0; // Start falling with no initial velocity
     }
 }

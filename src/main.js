@@ -12,7 +12,7 @@ import Bench from './objects/Bench.js';
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 200);
 camera.position.set(0, 5, 30);
 camera.lookAt(0, 0, 0);
 
@@ -36,7 +36,6 @@ scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 // load terrain
 const terrain = new Terrain(scene);
 
-// load objects
 // load benches
 const benches = [];
 
@@ -85,7 +84,7 @@ for (let i = 0; i < 10; i++) {
     spawnCookie();
 }
 
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 10; i++) {
     spawnBench();
 }
 
@@ -139,6 +138,38 @@ function animate() {
 
         // Skip collision checks during rewind animation
         if (isRewinding) continue;
+
+        // Collision detection with benches
+        if (squirrel.boundingBox && bench.boundingBox && bench.model) {
+            if (squirrel.boundingBox.intersectsBox(bench.boundingBox)) {
+                // Check if squirrel is above the bench and falling
+                if (squirrel.isJumping && squirrel.verticalVelocity < 0) {
+                    const squirrelBottom = squirrel.boundingBox.min.y;
+                    const benchTop = bench.boundingBox.max.y;
+
+                    if (squirrelBottom >= benchTop - 0.3) {  // Small threshold for smooth landing
+                        squirrel.landOn(bench);
+                    }
+                } else if (!squirrel.isOnPlatform) {
+                    // Only lose life if not already on platform and hitting bench from side
+                    lives.decrement();
+
+                    // Start rewind animation for all objects
+                    scooter.startRewind();
+                    terrain.startRewind();
+                    cookies.forEach(cookie => cookie.startRewind());
+                    benches.forEach(b => b.startRewind());
+                }
+            }
+
+            // Check if squirrel should fall off the bench
+            if (squirrel.isOnPlatform) {
+                const p = squirrel.currentPlatform;
+                if (p && p.boundingBox.min.z > squirrel.boundingBox.max.z) {
+                    squirrel.fallOffPlatform();
+                }
+            }
+        }
 
         // despawn bench when squirrel misses
         if (bench.model && bench.model.position.z > 50) {

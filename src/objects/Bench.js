@@ -14,6 +14,7 @@ export default class Bench {
         this.rewindSpeed = rewindSpeed; // units per second
         this.rewindRemaining = 0;
 
+        // bounding and helper
         this.boundingBox = null;
         this.helper = null;
 
@@ -32,7 +33,19 @@ export default class Bench {
                 // Rotate the bench to face the center
                 this.model.rotation.y = xOffset > 0 ? -Math.PI / 2 : Math.PI / 2;
 
-                this.boundingBox = new THREE.Box3().setFromObject(this.model);
+                // create custom bounding box (half-height)
+                const originalBox = new THREE.Box3().setFromObject(this.model);
+                const originalHeight = originalBox.max.y - originalBox.min.y;
+                this.boundingBox = new THREE.Box3(
+                    originalBox.min.clone(),
+                    new THREE.Vector3(
+                        originalBox.max.x,
+                        originalBox.min.y + (originalHeight / 2),
+                        originalBox.max.z
+                    )
+                );
+
+                // visualize bounding box
                 this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
                 this.scene.add(this.helper);
 
@@ -50,10 +63,17 @@ export default class Bench {
     update(delta) {
         if (!this.model) return;
 
-        if (this.boundingBox) {
-            this.boundingBox.setFromObject(this.model);
-            this.helper.update();
-        }
+        // update custom bounding box
+        const originalBox = new THREE.Box3().setFromObject(this.model);
+        const originalHeight = originalBox.max.y - originalBox.min.y;
+        this.boundingBox.min.copy(originalBox.min);
+        this.boundingBox.max.set(
+            originalBox.max.x,
+            originalBox.min.y + (originalHeight / 2),
+            originalBox.max.z
+        );
+        // update helper
+        if (this.helper) this.helper.update();
 
         // handle rewind animation
         if (this.isRewinding) {
@@ -81,13 +101,14 @@ export default class Bench {
     }
 
     remove() {
-        if (this.model) {
-            this.scene.remove(this.model);
-        }
         if (this.helper) {
             this.scene.remove(this.helper);
+            this.helper = null;
         }
-        this.model = null;
+        if (this.model) {
+            this.scene.remove(this.model);
+            this.model = null;
+        }
         this.boundingBox = null;
     }
 }
