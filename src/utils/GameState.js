@@ -1,0 +1,7 @@
+export const GameState = {
+    START: 'START',
+    PLAYING: 'PLAYING',
+    LEVEL_COMPLETE: 'LEVEL_COMPLETE',
+    GAME_OVER: 'GAME_OVER',
+    FINISHED: 'FINISHED',
+}

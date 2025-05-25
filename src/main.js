@@ -1,31 +1,35 @@
 import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
-import Cookie from './objects/Cookie.js';
 import Terrain from './objects/Terrain.js';
 import SnackCounter from './objects/SnackCounter.js'
-import { LANES, COOKIE_Z_RANGE } from './WorldConfig.js'
-import Scooter from './objects/Scooter.js';
 import LivesCounter from './objects/LivesCounter.js';
-
-import Bench from './objects/Bench.js';
-
+import { spawnBench, spawnCookie, spawnScooter } from './utils/spawner.js';
+import CollisionManager from './managers/CollisionManager.js';
+import LevelParser from './utils/LevelParser.js';
+import { LEVELS } from './WorldConfig.js';
+import { GameState } from './utils/GameState.js';
 const scene = new THREE.Scene();
+import Camera from './objects/Camera.js';
 
-const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 5, 30);
+// const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 200);
+// camera.position.set(0, 5, 30);
+// camera.lookAt(0, 0, 0);
+
+// Create camera with squirrel perspective
+const camera = new Camera(scene);
+camera.position.set(0, 5, 30); // Set initial position
 camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 0, 0);
-controls.enabled = true;
-controls.minDistance = 10;
-controls.maxDistance = 50;
-
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.target.set(0, 0, 0);
+// controls.enabled = true;
+// controls.minDistance = 10;
+// controls.maxDistance = 50;
 
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(5, 10, 7.5);
@@ -33,166 +37,58 @@ scene.add(light);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
+let state = GameState.START;
+
 // load terrain
 const terrain = new Terrain(scene);
 
-// load benches
-const benches = [];
-
-// load squirrel
+// load game assets
 const squirrel = new Squirrel(scene);
 const cookies = [];
+const benches = [];
 let scooter = null;
 
-function spawnCookie() {
-    const laneX = LANES[Math.floor(Math.random() * LANES.length)];
-    const zPos = Math.random() * (COOKIE_Z_RANGE.max - COOKIE_Z_RANGE.min) + COOKIE_Z_RANGE.min;
-
-    const cookie = new Cookie(scene);
-
-    const waitUntilLoaded = setInterval(() => {
-        if (cookie.model) {
-            cookie.model.position.set(laneX, 0, zPos);
-            cookies.push(cookie);
-            clearInterval(waitUntilLoaded);
-        }
-    }, 50);
+for (let i = 0; i < 20; i++) {
+    spawnCookie(scene, cookies);
 }
-
-function spawnBench() {
-    const laneX = LANES[Math.floor(Math.random() * LANES.length)];
-    const zPos = Math.random() * (COOKIE_Z_RANGE.max - COOKIE_Z_RANGE.min) + COOKIE_Z_RANGE.min;
-
-    const bench = new Bench(scene, laneX, zPos);
-
-    const waitUntilLoaded = setInterval(() => {
-        if (bench.model) {
-            benches.push(bench);
-            clearInterval(waitUntilLoaded);
-        }
-    }, 50);
-}
-
-function spawnScooter() {
-    const zPos = Math.random() * (COOKIE_Z_RANGE.max - COOKIE_Z_RANGE.min) + COOKIE_Z_RANGE.min;
-    scooter = new Scooter(scene);
-
-    scooter.model.position.z = zPos;
-}
-
 for (let i = 0; i < 10; i++) {
-    spawnCookie();
+    spawnBench(scene, benches);
 }
 
-for (let i = 0; i < 10; i++) {
-    spawnBench();
-}
-
-spawnScooter();
-
+scooter = spawnScooter(scene);
 
 // Score and Lives Counter
 let score = new SnackCounter();
 let lives = new LivesCounter(squirrel);
 
+// Initialize collision manager
+const collisionManager = new CollisionManager(scene, squirrel, score, lives);
+collisionManager.setCookies(cookies);
+collisionManager.setBenches(benches);
+collisionManager.setScooter(scooter);
+collisionManager.setTerrain(terrain);
+
+const levelParser = new LevelParser(LEVELS);
 const clock = new THREE.Clock();
 
 function animate() {
     requestAnimationFrame(animate);
+    if (state === GameState.START) {
+        camera.changeView(state, squirrel);
+    }
 
     const delta = clock.getDelta();
-    terrain.update(delta);
-    squirrel.update(delta);
-    scooter.update(delta);
 
-    // Check if any object is currently rewinding
-    const isRewinding = scooter.isCurrentlyRewinding() || terrain.isCurrentlyRewinding();
-
-    for (let i = cookies.length - 1; i >= 0; i--) {
-        const cookie = cookies[i];
-        cookie.update(delta);
-
-        // Skip collision checks during rewind animation
-        if (isRewinding) continue;
-
-        // Collision detection
-        if (squirrel.boundingBox && cookie.boundingBox && cookie.model) {
-            if (squirrel.boundingBox.intersectsBox(cookie.boundingBox)) {
-                score.increment();
-                cookie.remove();
-                cookies.splice(i, 1);
-                continue;
-            }
-        }
-
-        // despawn cookie when squirrel misses
-        if (cookie.model && cookie.model.position.z > 50) {
-            cookie.remove();
-            cookies.splice(i, 1);
-        }
-    }
-
-    for (let i = benches.length - 1; i >= 0; i--) {
-        const bench = benches[i];
-        bench.update(delta);
-
-        // Skip collision checks during rewind animation
-        if (isRewinding) continue;
-
-        // Collision detection with benches
-        if (squirrel.boundingBox && bench.boundingBox && bench.model) {
-            if (squirrel.boundingBox.intersectsBox(bench.boundingBox)) {
-                // Check if squirrel is above the bench and falling
-                if (squirrel.isJumping && squirrel.verticalVelocity < 0) {
-                    const squirrelBottom = squirrel.boundingBox.min.y;
-                    const benchTop = bench.boundingBox.max.y;
-
-                    if (squirrelBottom >= benchTop - 0.3) {  // Small threshold for smooth landing
-                        squirrel.landOn(bench);
-                    }
-                } else if (!squirrel.isOnPlatform) {
-                    // Only lose life if not already on platform and hitting bench from side
-                    lives.decrement();
-
-                    // Start rewind animation for all objects
-                    scooter.startRewind();
-                    terrain.startRewind();
-                    cookies.forEach(cookie => cookie.startRewind());
-                    benches.forEach(b => b.startRewind());
-                }
-            }
-
-            // Check if squirrel should fall off the bench
-            if (squirrel.isOnPlatform) {
-                const p = squirrel.currentPlatform;
-                if (p && p.boundingBox.min.z > squirrel.boundingBox.max.z) {
-                    squirrel.fallOffPlatform();
-                }
-            }
-        }
-
-        // despawn bench when squirrel misses
-        if (bench.model && bench.model.position.z > 50) {
-            bench.remove();
-            benches.splice(i, 1);
-        }
-    }
-
-    // Collision detection with obstacles (only if not currently rewinding)
-    if (!isRewinding && squirrel.boundingBox && scooter.boundingBox && scooter.model) {
-        if (squirrel.boundingBox.intersectsBox(scooter.boundingBox)) {
-            lives.decrement();
-
-            // Start rewind animation for all objects
-            scooter.startRewind();
-            terrain.startRewind();
-            cookies.forEach(cookie => cookie.startRewind());
-            benches.forEach(bench => bench.startRewind());
-        }
+    // Only update game objects when not in START state
+    if (state !== GameState.START) {
+        camera.changeView(state, squirrel);
+        terrain.update(delta);
+        squirrel.update(delta);
+        scooter.update(delta);
+        collisionManager.update(delta, terrain.isCurrentlyRewinding());
     }
 
     renderer.render(scene, camera);
-    controls.update();
 }
 
 animate();
@@ -201,6 +97,12 @@ animate();
 window.addEventListener('keydown', onKeyPress);
 
 function onKeyPress(event) {
+    // Start game on any key press if in START state
+    if (state === GameState.START) {
+        state = GameState.PLAYING;
+        return;
+    }
+
     switch (event.key) {
         case 'a':
         case 'ArrowLeft':
@@ -217,4 +119,6 @@ function onKeyPress(event) {
             break;
     }
 }
+
+
 
