@@ -85,6 +85,7 @@ export default class Bench {
             if (this.rewindRemaining <= 0) {
                 this.isRewinding = false;
             }
+            return;
         }
 
         // move with floor

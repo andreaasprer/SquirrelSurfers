@@ -55,7 +55,7 @@ export default class Cookie {
 
         // handle rewind animation
         if (this.isRewinding) {
-            const rewindStep = this.rewindDistance * delta;
+            const rewindStep = this.rewindSpeed * delta;
             const stepToTake = Math.min(rewindStep, this.rewindRemaining);
             this.model.position.z -= stepToTake;
             this.rewindRemaining -= stepToTake;
@@ -63,6 +63,7 @@ export default class Cookie {
             if (this.rewindRemaining <= 0) {
                 this.isRewinding = false;
             }
+            return;
         }
 
         // move with floor

@@ -9,12 +9,10 @@ import CollisionManager from './managers/CollisionManager.js';
 import LevelParser from './utils/LevelParser.js';
 import { LEVELS } from './WorldConfig.js';
 import { GameState } from './utils/GameState.js';
-const scene = new THREE.Scene();
 import Camera from './objects/Camera.js';
 
-// const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 200);
-// camera.position.set(0, 5, 30);
-// camera.lookAt(0, 0, 0);
+
+const scene = new THREE.Scene();
 
 // Create camera with squirrel perspective
 const camera = new Camera(scene);
@@ -25,11 +23,11 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// const controls = new OrbitControls(camera, renderer.domElement);
-// controls.target.set(0, 0, 0);
-// controls.enabled = true;
-// controls.minDistance = 10;
-// controls.maxDistance = 50;
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0, 0);
+controls.enabled = true;
+controls.minDistance = 10;
+controls.maxDistance = 50;
 
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(5, 10, 7.5);
@@ -97,13 +95,14 @@ animate();
 window.addEventListener('keydown', onKeyPress);
 
 function onKeyPress(event) {
-    // Start game on any key press if in START state
-    if (state === GameState.START) {
-        state = GameState.PLAYING;
-        return;
-    }
 
     switch (event.key) {
+        case 'p':
+            // Start game on any key press if in START state
+            if (state === GameState.START) {
+                state = GameState.PLAYING;
+            }
+            break;
         case 'a':
         case 'ArrowLeft':
             squirrel.moveLeft();
