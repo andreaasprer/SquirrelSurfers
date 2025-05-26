@@ -10,9 +10,12 @@ import LevelParser from './utils/LevelParser.js';
 import { LEVELS } from './WorldConfig.js';
 import { GameState } from './utils/GameState.js';
 import Camera from './objects/Camera.js';
-
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
 const scene = new THREE.Scene();
+
+let textMesh = null;
 
 // Create camera with squirrel perspective
 const camera = new Camera(scene);
@@ -34,6 +37,26 @@ light.position.set(5, 10, 7.5);
 scene.add(light);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+const fontLoader = new FontLoader();
+fontLoader.load(
+    '../fonts/BagelFatOne.json',
+    (font) => {
+        const textGeometry = new TextGeometry('Press P to Play', {
+            size: 5,
+            depth: 1,
+            height: 10,
+            font: font,
+            curveSegments: 12,
+        });
+        textGeometry.center();
+        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xf2f0ef });
+        textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        textMesh.position.set(0, 8, -40);
+        scene.add(textMesh);
+    }
+)
+
 
 let state = GameState.START;
 
@@ -101,6 +124,7 @@ function onKeyPress(event) {
             // Start game on any key press if in START state
             if (state === GameState.START) {
                 state = GameState.PLAYING;
+                scene.remove(textMesh);
             }
             break;
         case 'a':
