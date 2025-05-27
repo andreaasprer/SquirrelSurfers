@@ -63,6 +63,19 @@ let state = GameState.START;
 // load terrain
 const terrain = new Terrain(scene);
 
+// day and night environment
+scene.fog = new THREE.FogExp2(); 
+
+function setDay() {
+    scene.fog.color.set(0xadd8e6); 
+    scene.fog.density = 0.01;
+}
+
+function setNight() {
+    scene.fog.color.set(0x055478); 
+    scene.fog.density = 0.02;      
+}
+
 // load game assets
 const squirrel = new Squirrel(scene);
 const cookies = [];
@@ -91,6 +104,14 @@ collisionManager.setTerrain(terrain);
 
 const levelParser = new LevelParser(LEVELS);
 const clock = new THREE.Clock();
+
+// Set initial environment
+const currentLevel = levelParser.getCurrentLevel();
+if (currentLevel.environment == 'day') {
+    setDay();
+} else if (currentLevel.environment == 'night') {
+    setNight();
+}
 
 function animate() {
     requestAnimationFrame(animate);

@@ -12,6 +12,18 @@ export const rewindDistance = 50;
 export const rewindSpeed = 50;
 
 export const LEVELS = [
-    { distance: OBSTACLE_Z_RANGE.min, numCookies: 20, numBenches: 10 },
-    { distance: OBSTACLE_Z_RANGE.min + 1000, numCookies: 30, numBenches: 15 },
+    { 
+        name: 'Daytime',
+        environment: 'day',
+        distance: OBSTACLE_Z_RANGE.min, 
+        numCookies: 20, 
+        numBenches: 10 
+    },
+    { 
+        name: 'Nighttime',
+        environment: 'night',
+        distance: OBSTACLE_Z_RANGE.min + 1000,
+        numCookies: 30, 
+        numBenches: 15 
+    }
 ];
