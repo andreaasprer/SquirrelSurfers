@@ -18,6 +18,10 @@ export default class Terrain {
         this.rewindDistance = rewindDistance;
         this.rewindSpeed = rewindSpeed;
         this.rewindRemaining = 0;
+
+        // terrain counter
+        this.terrainCounter = 1;
+        this.totalDistanceCovered = 0;
     }
 
     createTerrainPiece(zPosition) {
@@ -55,6 +59,8 @@ export default class Terrain {
             if (this.rewindRemaining <= 0) {
                 this.isRewinding = false;
             }
+
+            this.totalDistanceCovered -= stepToTake;
             return;
         }
 
@@ -67,8 +73,12 @@ export default class Terrain {
             // Reset position when piece moves too far
             if (piece.position.z > 80) {
                 piece.position.z = -220;
+                this.terrainCounter++;
             }
         }
+
+        // Only increase distance during normal forward movement
+        this.totalDistanceCovered += velocity * delta;
     }
 
     startRewind() {
@@ -78,5 +88,9 @@ export default class Terrain {
 
     isCurrentlyRewinding() {
         return this.isRewinding;
+    }
+
+    distanceCovered() {
+        return Math.trunc(this.totalDistanceCovered/10);
     }
 } 

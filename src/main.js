@@ -4,6 +4,7 @@ import Squirrel from './objects/Squirrel.js';
 import Terrain from './objects/Terrain.js';
 import SnackCounter from './objects/SnackCounter.js'
 import LivesCounter from './objects/LivesCounter.js';
+import DistanceCounter from './objects/DistanceCounter.js';
 import { spawnBench, spawnCookie, spawnScooter } from './utils/spawner.js';
 import CollisionManager from './managers/CollisionManager.js';
 import LevelParser from './utils/LevelParser.js';
@@ -91,9 +92,11 @@ for (let i = 0; i < 10; i++) {
 
 scooter = spawnScooter(scene);
 
-// Score and Lives Counter
+// Score, Lives, and Distance Counter
 let score = new SnackCounter();
 let lives = new LivesCounter(squirrel);
+let distanceCounter = new DistanceCounter(terrain);
+
 
 // Initialize collision manager
 const collisionManager = new CollisionManager(scene, squirrel, score, lives);
@@ -127,6 +130,7 @@ function animate() {
         terrain.update(delta);
         squirrel.update(delta);
         scooter.update(delta);
+        distanceCounter.updateDistance();
         collisionManager.update(delta, terrain.isCurrentlyRewinding());
     }
 
