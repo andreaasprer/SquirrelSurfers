@@ -65,16 +65,16 @@ let state = GameState.START;
 const terrain = new Terrain(scene);
 
 // day and night environment
-scene.fog = new THREE.FogExp2(); 
+scene.fog = new THREE.FogExp2();
 
 function setDay() {
-    scene.fog.color.set(0xadd8e6); 
+    scene.fog.color.set(0xadd8e6);
     scene.fog.density = 0.01;
 }
 
 function setNight() {
-    scene.fog.color.set(0x055478); 
-    scene.fog.density = 0.02;      
+    scene.fog.color.set(0x055478);
+    scene.fog.density = 0.02;
 }
 
 // load game assets
@@ -134,7 +134,48 @@ function animate() {
         collisionManager.update(delta, terrain.isCurrentlyRewinding());
     }
 
+    // Check for Game-Over
+    if (squirrel.getLivesCnt() <= 0) {
+        if (state !== GameState.GAME_OVER) {
+            state = GameState.GAME_OVER;
+            showGameOver();
+        }
+    }
+
     renderer.render(scene, camera);
+}
+
+function showGameOver() {
+    // display game over screen
+    const gameOverScreen = document.getElementById('game-over-screen');
+    gameOverScreen.style.display = 'flex';
+
+    // display final score
+    const finalScore = document.createElement('p');
+    finalScore.textContent = `Final Score: ${score.count}`;
+    gameOverScreen.insertBefore(finalScore, document.getElementById('restart-btn'));
+
+    // clear scene
+    while (scene.children.length > 0) {
+        const object = scene.children[0];
+        if (object.geometry) {
+            object.geometry.dispose();
+        }
+        if (object.material) {
+            if (Array.isArray(object.material)) {
+                object.material.forEach(material => material.dispose());
+            } else {
+                object.material.dispose();
+            }
+        }
+        scene.remove(object);
+    }
+
+    // add restart functionality
+    const restartBtn = document.getElementById('restart-btn');
+    restartBtn.onclick = () => {
+        location.reload();
+    };
 }
 
 animate();
