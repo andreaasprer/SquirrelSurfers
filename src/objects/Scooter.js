@@ -11,7 +11,6 @@ export default class Scooter {
         // this.model = null;
 
         this.boundingBox = null;
-        this.helper = null;
 
         // lane switching variables
         this.lanes = LANES;
@@ -39,9 +38,6 @@ export default class Scooter {
         this.scene.add(this.model);
 
         this.boundingBox = new THREE.Box3().setFromObject(this.model);
-        this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
-        this.scene.add(this.helper);
-
 
         // loader.load(this.modelPath, (gltf) => {
         //     this.model = gltf.scene;
@@ -49,8 +45,6 @@ export default class Scooter {
         //     this.scene.add(this.model);
 
         //     this.boundingBox = new THREE.Box3().setFromObject(this.model);
-        //     this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
-        //     this.scene.add(this.helper);
 
         // }, undefined, (error) => {
         //     console.error('Error loading cookie model:', error);
@@ -62,7 +56,6 @@ export default class Scooter {
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);
-            this.helper.update();
         }
 
         this.elapsedTime += delta;
@@ -91,7 +84,6 @@ export default class Scooter {
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);
-            this.helper.update();
         }
     }
 
@@ -107,9 +99,6 @@ export default class Scooter {
     remove() {
         if (this.model) {
             this.scene.remove(this.model);
-        }
-        if (this.helper) {
-            this.scene.remove(this.helper);
         }
         this.model = null;
         this.boundingBox = null;

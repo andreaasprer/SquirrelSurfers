@@ -23,7 +23,7 @@ const camera = new Camera(scene);
 camera.position.set(0, 5, 30); // Set initial position
 camera.lookAt(0, 0, 0);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -84,13 +84,13 @@ const benches = [];
 let scooter = null;
 
 for (let i = 0; i < 20; i++) {
-    spawnCookie(scene, cookies);
+    spawnCookie(scene, cookies, renderer, camera);
 }
 for (let i = 0; i < 10; i++) {
-    spawnBench(scene, benches);
+    spawnBench(scene, benches, renderer, camera);
 }
 
-scooter = spawnScooter(scene);
+scooter = spawnScooter(scene, renderer, camera);
 
 // Score, Lives, and Distance Counter
 let score = new SnackCounter();
@@ -124,14 +124,22 @@ function animate() {
 
     const delta = clock.getDelta();
 
-    // Only update game objects when not in START state
-    if (state !== GameState.START) {
+    // Only update game objects when not in START or LEVEL_COMPLETE state
+    if (state !== GameState.START && state !== GameState.LEVEL_COMPLETE) {
         camera.changeView(state, squirrel);
         terrain.update(delta);
         squirrel.update(delta);
         scooter.update(delta);
         distanceCounter.updateDistance();
         collisionManager.update(delta, terrain.isCurrentlyRewinding());
+
+        // check if level is complete
+        const goal = levelParser.getGoalDistance();
+        console.log(distanceCounter.getDistance(), goal);
+        if (state === GameState.PLAYING && distanceCounter.getDistance() >= goal) {
+            state = GameState.LEVEL_COMPLETE;
+            prepareNextLevel();
+        }
     }
 
     // Check for Game-Over
@@ -209,5 +217,37 @@ function onKeyPress(event) {
     }
 }
 
+function prepareNextLevel() {
+    // short pause so the player sees the "Level Complete!" text
+    setTimeout(() => {
+        const next = levelParser.nextLevel();
 
+        if (!next) {                 // no more levels
+            state = GameState.FINISHED;
+            // you can display a "You won!" screen here
+            return;
+        }
 
+        // reset world-specific stuff
+        terrain.totalDistanceCovered = 0;
+        distanceCounter.updateDistance();   // HUD back to zero
+
+        // change fog / lighting for new environment
+        if (next.environment === 'day') setDay();
+        else if (next.environment === 'night') setNight();
+
+        // clear leftovers from previous level
+        cookies.forEach(c => c.remove());
+        benches.forEach(b => b.remove());
+        scooter.remove();
+        cookies.length = benches.length = 0;
+
+        // spawn new obstacles for the new level
+        for (let i = 0; i < next.numCookies; i++) spawnCookie(scene, cookies, renderer, camera);
+        for (let i = 0; i < next.numBenches; i++) spawnBench(scene, benches, renderer, camera);
+        scooter = spawnScooter(scene, renderer, camera);
+        collisionManager.setScooter(scooter);
+
+        state = GameState.PLAYING;
+    }, 5000);  // 2-second delay; tweak as you like
+}

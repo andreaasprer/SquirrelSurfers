@@ -9,7 +9,6 @@ export default class Cookie {
         this.model = null;
 
         this.boundingBox = null;
-        this.helper = null;
 
         // for animation
         this.elapsedTime = 0;
@@ -35,8 +34,6 @@ export default class Cookie {
             this.scene.add(this.model);
 
             this.boundingBox = new THREE.Box3().setFromObject(this.model);
-            this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
-            this.scene.add(this.helper);
 
         }, undefined, (error) => {
             console.error('Error loading cookie model:', error);
@@ -48,7 +45,6 @@ export default class Cookie {
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);
-            this.helper.update();
         }
 
         this.elapsedTime += delta;
@@ -78,7 +74,6 @@ export default class Cookie {
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);
-            this.helper.update();
         }
     }
 
@@ -94,9 +89,6 @@ export default class Cookie {
     remove() {
         if (this.model) {
             this.scene.remove(this.model);
-        }
-        if (this.helper) {
-            this.scene.remove(this.helper);
         }
         this.model = null;
         this.boundingBox = null;

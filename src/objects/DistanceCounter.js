@@ -22,4 +22,8 @@ export default class DistanceCounter {
     updateMessage() {
         return "Distance: " + this.distance;
     }
+
+    getDistance() {
+        return this.distance;
+    }
 }

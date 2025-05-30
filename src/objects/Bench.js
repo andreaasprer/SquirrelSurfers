@@ -14,10 +14,6 @@ export default class Bench {
         this.rewindSpeed = rewindSpeed; // units per second
         this.rewindRemaining = 0;
 
-        // bounding and helper
-        this.boundingBox = null;
-        this.helper = null;
-
         this.createBench(xOffset, zPosition);
     }
 
@@ -26,6 +22,19 @@ export default class Bench {
             '../models/wooden_park_bench.glb',
             (gltf) => {
                 this.model = gltf.scene;
+
+                // Ensure all materials are properly initialized
+                this.model.traverse((child) => {
+                    if (child.isMesh) {
+                        // Force material initialization
+                        child.material.needsUpdate = true;
+                        // Ensure proper rendering order
+                        child.renderOrder = 0;
+                        // Optional: optimize materials
+                        child.material.side = THREE.FrontSide;
+                    }
+                });
+
                 // Scale the bench appropriately
                 this.model.scale.set(5, 5, 5);
                 // Position the bench on the side of the terrain
@@ -44,10 +53,6 @@ export default class Bench {
                         originalBox.max.z
                     )
                 );
-
-                // visualize bounding box
-                this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
-                this.scene.add(this.helper);
 
                 this.scene.add(this.model);
             },
@@ -72,8 +77,6 @@ export default class Bench {
             originalBox.min.y + (originalHeight / 2),
             originalBox.max.z
         );
-        // update helper
-        if (this.helper) this.helper.update();
 
         // handle rewind animation
         if (this.isRewinding) {
@@ -102,10 +105,6 @@ export default class Bench {
     }
 
     remove() {
-        if (this.helper) {
-            this.scene.remove(this.helper);
-            this.helper = null;
-        }
         if (this.model) {
             this.scene.remove(this.model);
             this.model = null;

@@ -91,6 +91,6 @@ export default class Terrain {
     }
 
     distanceCovered() {
-        return Math.trunc(this.totalDistanceCovered/10);
+        return Math.trunc(this.totalDistanceCovered / 10);
     }
 } 

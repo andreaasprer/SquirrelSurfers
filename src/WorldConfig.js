@@ -15,14 +15,14 @@ export const LEVELS = [
     {
         name: 'Daytime',
         environment: 'day',
-        distance: OBSTACLE_Z_RANGE.min,
+        distance: 200,
         numCookies: 20,
         numBenches: 10
     },
     {
         name: 'Nighttime',
         environment: 'night',
-        distance: OBSTACLE_Z_RANGE.min + 1000,
+        distance: 300,
         numCookies: 30,
         numBenches: 15
     }

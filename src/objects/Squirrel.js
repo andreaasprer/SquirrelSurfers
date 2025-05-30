@@ -31,7 +31,6 @@ export default class Squirrel {
         this.currentPlatform = null;
 
         this.boundingBox = null;
-        this.helper = null;
 
         this.loadModel();
     }
@@ -48,8 +47,6 @@ export default class Squirrel {
             this.scene.add(this.model);
 
             this.boundingBox = new THREE.Box3().setFromObject(this.model);
-            this.helper = new THREE.BoxHelper(this.model, 0x00ff00);
-            this.scene.add(this.helper);
 
             this.mixer = new THREE.AnimationMixer(this.model);
             const action = this.mixer.clipAction(gltf.animations[0]);
@@ -67,7 +64,6 @@ export default class Squirrel {
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);
-            this.helper.update();
         }
 
         // Smooth horizontal movement
@@ -132,7 +128,6 @@ export default class Squirrel {
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);
-            this.helper.update();
         }
     }
 
