@@ -5,7 +5,6 @@ export const roadLength = 300;
 
 export const LANES = [-roadWidth / 3, 0, roadWidth / 3];
 export const NUM_LANES = LANES.length;
-export const OBSTACLE_Z_RANGE = { min: -2000, max: -50 };
 
 export const velocity = 30;
 export const rewindDistance = 50;
@@ -15,15 +14,23 @@ export const LEVELS = [
     {
         name: 'Daytime',
         environment: 'day',
-        distance: 200,
+        distance: 100,
         numCookies: 20,
-        numBenches: 10
+        numBenches: 10,
+        obstacleRange: {
+            min: -950,
+            max: -50
+        }
     },
     {
         name: 'Nighttime',
         environment: 'night',
-        distance: 300,
+        distance: 100,
         numCookies: 30,
-        numBenches: 15
+        numBenches: 15,
+        obstacleRange: {
+            min: -950,
+            max: -50
+        }
     }
 ];

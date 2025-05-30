@@ -1,12 +1,12 @@
-import { LANES, OBSTACLE_Z_RANGE } from "../WorldConfig";
+import { LANES } from "../WorldConfig";
 import Cookie from "../objects/Cookie";
 import Scooter from "../objects/Scooter";
 import Bench from "../objects/Bench";
+import Trashcan from '../objects/Trashcan.js';
 
-
-export function spawnCookie(scene, cookies, renderer, camera) {
+export function spawnCookie(scene, cookies, renderer, camera, obstacleRange) {
     const laneX = LANES[Math.floor(Math.random() * LANES.length)];
-    const zPos = Math.random() * (OBSTACLE_Z_RANGE.max - OBSTACLE_Z_RANGE.min) + OBSTACLE_Z_RANGE.min;
+    const zPos = Math.random() * (obstacleRange.max - obstacleRange.min) + obstacleRange.min;
 
     const cookie = new Cookie(scene);
 
@@ -21,9 +21,9 @@ export function spawnCookie(scene, cookies, renderer, camera) {
     }, 50);
 }
 
-export function spawnBench(scene, benches, renderer, camera) {
+export function spawnBench(scene, benches, renderer, camera, obstacleRange) {
     const laneX = LANES[Math.floor(Math.random() * LANES.length)];
-    const zPos = Math.random() * (OBSTACLE_Z_RANGE.max - OBSTACLE_Z_RANGE.min) + OBSTACLE_Z_RANGE.min;
+    const zPos = Math.random() * (obstacleRange.max - obstacleRange.min) + obstacleRange.min;
 
     const bench = new Bench(scene, laneX, zPos);
 
@@ -37,12 +37,20 @@ export function spawnBench(scene, benches, renderer, camera) {
     }, 50);
 }
 
-export function spawnScooter(scene, renderer, camera) {
-    const zPos = Math.random() * (OBSTACLE_Z_RANGE.max - OBSTACLE_Z_RANGE.min) + OBSTACLE_Z_RANGE.min;
+export function spawnScooter(scene, renderer, camera, obstacleRange) {
+    const zPos = Math.random() * (obstacleRange.max - obstacleRange.min) + obstacleRange.min;
     const newScooter = new Scooter(scene);
 
     newScooter.model.position.z = zPos;
     // Precompile the object
     renderer.compile(scene, camera);
     return newScooter;
+}
+
+export function spawnTrashcan(scene, renderer, camera, zPos) {
+    const globalZPos = zPos * -10;
+    const newTrashcan = new Trashcan(scene, globalZPos);
+
+    renderer.compile(scene, camera);
+    return newTrashcan;
 }

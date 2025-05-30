@@ -5,7 +5,7 @@ import Terrain from './objects/Terrain.js';
 import SnackCounter from './objects/SnackCounter.js'
 import LivesCounter from './objects/LivesCounter.js';
 import DistanceCounter from './objects/DistanceCounter.js';
-import { spawnBench, spawnCookie, spawnScooter } from './utils/spawner.js';
+import { spawnBench, spawnCookie, spawnScooter, spawnTrashcan } from './utils/spawner.js';
 import CollisionManager from './managers/CollisionManager.js';
 import LevelParser from './utils/LevelParser.js';
 import { LEVELS } from './WorldConfig.js';
@@ -60,6 +60,8 @@ fontLoader.load(
 
 
 let state = GameState.START;
+const levelParser = new LevelParser(LEVELS);
+const currentLevel = levelParser.getCurrentLevel();
 
 // load terrain
 const terrain = new Terrain(scene);
@@ -82,15 +84,17 @@ const squirrel = new Squirrel(scene);
 const cookies = [];
 const benches = [];
 let scooter = null;
+let trashcan = null;
 
-for (let i = 0; i < 20; i++) {
-    spawnCookie(scene, cookies, renderer, camera);
+for (let i = 0; i < currentLevel.numCookies; i++) {
+    spawnCookie(scene, cookies, renderer, camera, currentLevel.obstacleRange);
 }
-for (let i = 0; i < 10; i++) {
-    spawnBench(scene, benches, renderer, camera);
+for (let i = 0; i < currentLevel.numBenches; i++) {
+    spawnBench(scene, benches, renderer, camera, currentLevel.obstacleRange);
 }
 
-scooter = spawnScooter(scene, renderer, camera);
+scooter = spawnScooter(scene, renderer, camera, currentLevel.obstacleRange);
+trashcan = spawnTrashcan(scene, renderer, camera, currentLevel.distance);
 
 // Score, Lives, and Distance Counter
 let score = new SnackCounter();
@@ -104,12 +108,11 @@ collisionManager.setCookies(cookies);
 collisionManager.setBenches(benches);
 collisionManager.setScooter(scooter);
 collisionManager.setTerrain(terrain);
+collisionManager.setTrashcan(trashcan);
 
-const levelParser = new LevelParser(LEVELS);
 const clock = new THREE.Clock();
 
 // Set initial environment
-const currentLevel = levelParser.getCurrentLevel();
 if (currentLevel.environment == 'day') {
     setDay();
 } else if (currentLevel.environment == 'night') {
@@ -130,6 +133,7 @@ function animate() {
         terrain.update(delta);
         squirrel.update(delta);
         scooter.update(delta);
+        trashcan.update(delta);
         distanceCounter.updateDistance();
         collisionManager.update(delta, terrain.isCurrentlyRewinding());
 
@@ -240,13 +244,20 @@ function prepareNextLevel() {
         cookies.forEach(c => c.remove());
         benches.forEach(b => b.remove());
         scooter.remove();
+        trashcan.remove();
         cookies.length = benches.length = 0;
 
         // spawn new obstacles for the new level
-        for (let i = 0; i < next.numCookies; i++) spawnCookie(scene, cookies, renderer, camera);
-        for (let i = 0; i < next.numBenches; i++) spawnBench(scene, benches, renderer, camera);
-        scooter = spawnScooter(scene, renderer, camera);
+        for (let i = 0; i < next.numCookies; i++) {
+            spawnCookie(scene, cookies, renderer, camera, next.obstacleRange);
+        }
+        for (let i = 0; i < next.numBenches; i++) {
+            spawnBench(scene, benches, renderer, camera, next.obstacleRange);
+        }
+        scooter = spawnScooter(scene, renderer, camera, next.obstacleRange);
+        trashcan = spawnTrashcan(scene, renderer, camera, next.distance);
         collisionManager.setScooter(scooter);
+        collisionManager.setTrashcan(trashcan);
 
         state = GameState.PLAYING;
     }, 5000);  // 2-second delay; tweak as you like

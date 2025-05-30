@@ -8,6 +8,7 @@ export default class CollisionManager {
         this.benches = [];
         this.scooter = null;
         this.terrain = null;
+        this.trashcan = null;
     }
 
     setScooter(scooter) {
@@ -24,6 +25,10 @@ export default class CollisionManager {
 
     setTerrain(terrain) {
         this.terrain = terrain;
+    }
+
+    setTrashcan(trashcan) {
+        this.trashcan = trashcan;
     }
 
     update(delta, isRewinding) {
@@ -111,5 +116,6 @@ export default class CollisionManager {
         this.terrain.startRewind();
         this.cookies.forEach(cookie => cookie.startRewind());
         this.benches.forEach(bench => bench.startRewind());
+        this.trashcan.startRewind();
     }
 } 
