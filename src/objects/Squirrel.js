@@ -138,4 +138,21 @@ export default class Squirrel {
         this.isJumping = true;
         this.verticalVelocity = 0; // Start falling with no initial velocity
     }
+
+    resetPosition() {
+        if (!this.model) return;
+
+        this.model.position.set(0, 0, 10);
+        this.currentLane = 1;
+        this.targetPosition.set(this.lanes[this.currentLane], 0, 10);
+
+        this.isJumping = false;
+        this.verticalVelocity = 0;
+        this.isOnPlatform = false;
+        this.currentPlatform = null;
+
+        if (this.boundingBox) {
+            this.boundingBox.setFromObject(this.model);
+        }
+    }
 }

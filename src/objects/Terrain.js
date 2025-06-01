@@ -94,4 +94,9 @@ export default class Terrain {
     distanceCovered() {
         return Math.trunc(this.totalDistanceCovered / 10);
     }
+
+    resetRewindState() {
+        this.isRewinding = false;
+        this.rewindRemaining = 0;
+    }
 } 

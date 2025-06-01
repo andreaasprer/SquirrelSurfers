@@ -17,11 +17,7 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 // Create loading manager
 export const loadingManager = new THREE.LoadingManager();
 const loadingScreen = document.getElementById('loading-screen');
-
 const loadingText = document.getElementById('loading-text');
-
-//const progressBar = document.getElementById('progress-bar');
-
 const progressFill = document.getElementById('progress-fill');
 
 document.body.appendChild(loadingScreen);
@@ -152,40 +148,46 @@ if (currentLevel.environment == 'day') {
 
 function animate() {
     requestAnimationFrame(animate);
-    if (state === GameState.START) {
-        camera.changeView(state, squirrel);
-    }
-
     const delta = clock.getDelta();
 
-    // Only update game objects when not in START or LEVEL_COMPLETE state
-    if (state !== GameState.START && state !== GameState.LEVEL_COMPLETE) {
-        camera.changeView(state, squirrel);
-        terrain.update(delta);
-        squirrel.update(delta);
-        scooter.update(delta);
-        trashcan.update(delta);
-        distanceCounter.updateDistance();
-        collisionManager.update(delta, terrain.isCurrentlyRewinding());
-
-        // check if level is complete
-        const goal = levelParser.getGoalDistance();
-        console.log(distanceCounter.getDistance(), goal);
-        if (state === GameState.PLAYING && distanceCounter.getDistance() >= goal) {
-            state = GameState.LEVEL_COMPLETE;
-            prepareNextLevel();
-        }
-    }
-
-    // Check for Game-Over
-    if (squirrel.getLivesCnt() <= 0) {
-        if (state !== GameState.GAME_OVER) {
-            state = GameState.GAME_OVER;
-            showGameOver();
-        }
-    }
-
     renderer.render(scene, camera);
+
+    switch (state) {
+        case GameState.START:
+            camera.changeView(state, squirrel);
+            break;
+
+        case GameState.PLAYING:
+            // check if level is complete
+            const goal = levelParser.getGoalDistance();
+            if (distanceCounter.getDistance() >= goal) {
+                state = GameState.LEVEL_COMPLETE;
+                prepareNextLevel();
+            }
+            camera.changeView(state, squirrel);
+            terrain.update(delta);
+            squirrel.update(delta);
+            scooter.update(delta);
+            trashcan.update(delta);
+            distanceCounter.updateDistance();
+            collisionManager.update(delta, terrain.isCurrentlyRewinding());
+            break;
+
+        case GameState.LEVEL_COMPLETE:
+            camera.changeView(state, squirrel);
+            break;
+
+        case GameState.GAME_OVER:
+            if (!document.getElementById('game-over-screen').style.display) {
+                showGameOver();
+            }
+            break;
+    }
+
+    // Check for Game-Over condition
+    if (squirrel.getLivesCnt() <= 0 && state !== GameState.GAME_OVER) {
+        state = GameState.GAME_OVER;
+    }
 }
 
 function showGameOver() {
@@ -251,21 +253,27 @@ function onKeyPress(event) {
 }
 
 function prepareNextLevel() {
-    // short pause so the player sees the "Level Complete!" text
+    state = GameState.LEVEL_COMPLETE;
+    loadingScreen.style.display = 'flex';
+    loadingText.textContent = 'Level Complete!';
+
+    terrain.totalDistanceCovered = 0;
+    terrain.resetRewindState();
+    distanceCounter.updateDistance();
+    squirrel.resetPosition();
+
     setTimeout(() => {
         const next = levelParser.nextLevel();
 
-        if (!next) {                 // no more levels
+        // finished all levels
+        if (!next) {
             state = GameState.FINISHED;
-            // you can display a "You won!" screen here
+            // TODO: game over screen/scene???
             return;
         }
 
-        // reset world-specific stuff
-        terrain.totalDistanceCovered = 0;
-        distanceCounter.updateDistance();   // HUD back to zero
+        loadingText.textContent = 'Loading next level...';
 
-        // change fog / lighting for new environment
         if (next.environment === 'day') setDay();
         else if (next.environment === 'night') setNight();
 
@@ -285,9 +293,19 @@ function prepareNextLevel() {
         }
         scooter = spawnScooter(scene, renderer, camera, next.obstacleRange);
         trashcan = spawnTrashcan(scene, renderer, camera, next.distance);
+        collisionManager.setCookies(cookies);
+        collisionManager.setBenches(benches);
         collisionManager.setScooter(scooter);
         collisionManager.setTrashcan(trashcan);
 
-        state = GameState.PLAYING;
-    }, 5000);  // 2-second delay; tweak as you like
+        // wait 4 seconds before starting next level
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            squirrel.resetPosition();
+            terrain.totalDistanceCovered = 0;
+            terrain.resetRewindState();
+            distanceCounter.updateDistance();
+        }, 4000);
+
+    }, 1000);
 }
