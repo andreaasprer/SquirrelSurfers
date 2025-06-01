@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { LANES, roadWidth } from '../WorldConfig'
+import { loadingManager } from '../main.js';
 
 export default class Squirrel {
     constructor(scene, modelPath = '../../models/squirrel.glb') {
@@ -36,7 +37,7 @@ export default class Squirrel {
     }
 
     loadModel() {
-        const loader = new GLTFLoader();
+        const loader = new GLTFLoader(loadingManager);
 
         loader.load(this.modelPath, (gltf) => {
             this.model = gltf.scene;

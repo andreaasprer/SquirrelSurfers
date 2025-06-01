@@ -51,3 +51,38 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#loading-text {
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+#progress-bar {
+  width: 50%;
+  height: 20px;
+  background: #333;
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#progress-fill {
+  width: 0%;
+  height: 100%;
+  background: #4CAF50;
+  transition: width 0.3s ease-in-out;
+}

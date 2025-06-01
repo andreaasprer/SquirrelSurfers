@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
+import { loadingManager } from '../main.js';
 
 export default class Terrain {
     constructor(scene) {
         this.scene = scene;
         this.terrainPieces = [];
-        this.loader = new GLTFLoader();
+        this.loader = new GLTFLoader(loadingManager);
 
         // Create three terrain pieces at different positions
         this.createTerrainPiece(0);

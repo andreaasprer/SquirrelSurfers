@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
+import { loadingManager } from '../main.js';
 
 export default class Bench {
     constructor(scene, xOffset, zPosition) {
         this.scene = scene;
-        this.loader = new GLTFLoader();
+        this.loader = new GLTFLoader(loadingManager);
         this.model = null;
 
         // rewind animation

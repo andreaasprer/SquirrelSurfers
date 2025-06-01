@@ -14,6 +14,37 @@ import Camera from './objects/Camera.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
+// Create loading manager
+export const loadingManager = new THREE.LoadingManager();
+const loadingScreen = document.getElementById('loading-screen');
+
+const loadingText = document.getElementById('loading-text');
+
+//const progressBar = document.getElementById('progress-bar');
+
+const progressFill = document.getElementById('progress-fill');
+
+document.body.appendChild(loadingScreen);
+
+// Loading manager event handlers
+loadingManager.onProgress = function (url, itemsLoaded, itemsTotal) {
+    const progress = (itemsLoaded / itemsTotal) * 100;
+    progressFill.style.width = progress + '%';
+    loadingText.textContent = `Loading... ${Math.round(progress)}%`;
+};
+
+loadingManager.onLoad = function () {
+    loadingScreen.style.display = 'none';
+    state = GameState.START;
+    animate();
+};
+
+loadingManager.onError = function (url) {
+    console.error('Error loading:', url);
+    loadingText.textContent = 'Error loading game assets';
+    loadingText.style.color = '#ff0000';
+};
+
 const scene = new THREE.Scene();
 
 let textMesh = null;
@@ -189,8 +220,6 @@ function showGameOver() {
         location.reload();
     };
 }
-
-animate();
 
 // Keyboard Controls
 window.addEventListener('keydown', onKeyPress);

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
+import { loadingManager } from '../main.js';
 
 export default class Trashcan {
     constructor(scene, zPos, modelPath = '../models/trashcan.glb') {
@@ -20,7 +21,7 @@ export default class Trashcan {
     }
 
     loadModel(zPos) {
-        const loader = new GLTFLoader();
+        const loader = new GLTFLoader(loadingManager);
 
         loader.load(this.modelPath, (gltf) => {
             this.model = gltf.scene;

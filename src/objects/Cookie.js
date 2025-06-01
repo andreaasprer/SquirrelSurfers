@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
+import { loadingManager } from '../main.js';
 
 export default class Cookie {
     constructor(scene, modelPath = '../../models/cookie.glb') {
@@ -26,7 +27,7 @@ export default class Cookie {
     }
 
     loadModel() {
-        const loader = new GLTFLoader();
+        const loader = new GLTFLoader(loadingManager);
 
         loader.load(this.modelPath, (gltf) => {
             this.model = gltf.scene;
