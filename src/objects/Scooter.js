@@ -1,14 +1,14 @@
 import * as THREE from 'three';
-import { LANES, roadWidth } from '../WorldConfig'
-// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { LANES } from '../WorldConfig'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
-
+import { loadingManager } from '../main.js';
 
 export default class Scooter {
-    constructor(scene) {
+    constructor(scene, laneX, zPos) {
         this.scene = scene;
-        // this.modelPath = modelPath;
-        // this.model = null;
+        this.modelPath = '../../models/scooter.glb';
+        this.model = null;
 
         this.boundingBox = null;
 
@@ -16,6 +16,8 @@ export default class Scooter {
         this.lanes = LANES;
         this.elapsedTime = 0;
         this.moveSpeed = 1;
+        // random phase offset for each scooter
+        this.phaseOffset = Math.random() * Math.PI * 2;
 
         // rewind animation
         this.isRewinding = false;
@@ -23,32 +25,24 @@ export default class Scooter {
         this.rewindSpeed = rewindSpeed;
         this.rewindRemaining = 0;
 
-        this.loadModel();
+        this.loadModel(laneX, zPos);
     }
 
-    loadModel() {
-        //const loader = new GLTFLoader();
+    loadModel(laneX, zPos) {
+        const loader = new GLTFLoader(loadingManager);
 
-        const boxGeometry = new THREE.BoxGeometry(roadWidth / 3.5, 5, 3, 1, 1, 1);
-        const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x303030 });
-        const box = new THREE.Mesh(boxGeometry, boxMaterial);
+        loader.load(this.modelPath, (gltf) => {
+            this.model = gltf.scene;
+            this.model.position.set(laneX, -1, zPos);
+            this.model.scale.set(3, 3.5, 3);
+            this.model.rotation.y = Math.PI / 2;
+            this.scene.add(this.model);
 
-        this.model = box;
-        this.model.position.set(0, .8, 0);
-        this.scene.add(this.model);
+            this.boundingBox = new THREE.Box3().setFromObject(this.model);
 
-        this.boundingBox = new THREE.Box3().setFromObject(this.model);
-
-        // loader.load(this.modelPath, (gltf) => {
-        //     this.model = gltf.scene;
-        //     this.model.scale.set(20, 20, 20);
-        //     this.scene.add(this.model);
-
-        //     this.boundingBox = new THREE.Box3().setFromObject(this.model);
-
-        // }, undefined, (error) => {
-        //     console.error('Error loading cookie model:', error);
-        // });
+        }, undefined, (error) => {
+            console.error('Error loading scooter model:', error);
+        });
     }
 
     update(delta) {
@@ -75,11 +69,11 @@ export default class Scooter {
         // normal movement
         this.model.position.z += velocity * delta;
 
-        // oscillate across the lanes
+        // oscillate across the lanes with phase offset
         const left = this.lanes[0];
         const right = this.lanes[this.lanes.length - 1];
 
-        const t = (Math.sin(this.elapsedTime * this.moveSpeed) + 1) / 2;
+        const t = (Math.sin(this.elapsedTime * this.moveSpeed + this.phaseOffset) + 1) / 2;
         this.model.position.x = THREE.MathUtils.lerp(left, right, t);
 
         if (this.boundingBox) {

@@ -37,14 +37,19 @@ export function spawnBench(scene, benches, renderer, camera, obstacleRange) {
     }, 50);
 }
 
-export function spawnScooter(scene, renderer, camera, obstacleRange) {
+export function spawnScooter(scene, scooters, renderer, camera, obstacleRange) {
+    const laneX = LANES[Math.floor(Math.random() * LANES.length)];
     const zPos = Math.random() * (obstacleRange.max - obstacleRange.min) + obstacleRange.min;
-    const newScooter = new Scooter(scene);
+    const scooter = new Scooter(scene, laneX, zPos);
 
-    newScooter.model.position.z = zPos;
-    // Precompile the object
-    renderer.compile(scene, camera);
-    return newScooter;
+    const waitUntilLoaded = setInterval(() => {
+        if (scooter.model) {
+            // Precompile the object
+            renderer.compile(scene, camera);
+            scooters.push(scooter);
+            clearInterval(waitUntilLoaded);
+        }
+    }, 50);
 }
 
 export function spawnTrashcan(scene, renderer, camera, zPos) {

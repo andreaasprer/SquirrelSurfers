@@ -17,6 +17,7 @@ export const LEVELS = [
         distance: 100,
         numCookies: 20,
         numBenches: 10,
+        numScooters: 5,
         obstacleRange: {
             min: -950,
             max: -50
@@ -28,6 +29,7 @@ export const LEVELS = [
         distance: 100,
         numCookies: 30,
         numBenches: 15,
+        numScooters: 8,
         obstacleRange: {
             min: -950,
             max: -50

@@ -110,7 +110,7 @@ function setNight() {
 const squirrel = new Squirrel(scene);
 const cookies = [];
 const benches = [];
-let scooter = null;
+const scooters = [];
 let trashcan = null;
 
 for (let i = 0; i < currentLevel.numCookies; i++) {
@@ -119,8 +119,9 @@ for (let i = 0; i < currentLevel.numCookies; i++) {
 for (let i = 0; i < currentLevel.numBenches; i++) {
     spawnBench(scene, benches, renderer, camera, currentLevel.obstacleRange);
 }
-
-scooter = spawnScooter(scene, renderer, camera, currentLevel.obstacleRange);
+for (let i = 0; i < currentLevel.numScooters; i++) {
+    spawnScooter(scene, scooters, renderer, camera, currentLevel.obstacleRange);
+}
 trashcan = spawnTrashcan(scene, renderer, camera, currentLevel.distance);
 
 // Score, Lives, and Distance Counter
@@ -133,9 +134,9 @@ let distanceCounter = new DistanceCounter(terrain);
 const collisionManager = new CollisionManager(scene, squirrel, score, lives);
 collisionManager.setCookies(cookies);
 collisionManager.setBenches(benches);
-collisionManager.setScooter(scooter);
-collisionManager.setTerrain(terrain);
+collisionManager.setScooters(scooters);
 collisionManager.setTrashcan(trashcan);
+collisionManager.setTerrain(terrain);
 
 const clock = new THREE.Clock();
 
@@ -167,7 +168,6 @@ function animate() {
             camera.changeView(state, squirrel);
             terrain.update(delta);
             squirrel.update(delta);
-            scooter.update(delta);
             trashcan.update(delta);
             distanceCounter.updateDistance();
             collisionManager.update(delta, terrain.isCurrentlyRewinding());
@@ -280,9 +280,9 @@ function prepareNextLevel() {
         // clear leftovers from previous level
         cookies.forEach(c => c.remove());
         benches.forEach(b => b.remove());
-        scooter.remove();
+        scooters.forEach(s => s.remove());
         trashcan.remove();
-        cookies.length = benches.length = 0;
+        cookies.length = benches.length = scooters.length = 0;
 
         // spawn new obstacles for the new level
         for (let i = 0; i < next.numCookies; i++) {
@@ -291,12 +291,15 @@ function prepareNextLevel() {
         for (let i = 0; i < next.numBenches; i++) {
             spawnBench(scene, benches, renderer, camera, next.obstacleRange);
         }
-        scooter = spawnScooter(scene, renderer, camera, next.obstacleRange);
+        for (let i = 0; i < next.numScooters; i++) {
+            spawnScooter(scene, scooters, renderer, camera, next.obstacleRange);
+        }
         trashcan = spawnTrashcan(scene, renderer, camera, next.distance);
         collisionManager.setCookies(cookies);
         collisionManager.setBenches(benches);
-        collisionManager.setScooter(scooter);
+        collisionManager.setScooters(scooters);
         collisionManager.setTrashcan(trashcan);
+        collisionManager.setTerrain(terrain);
 
         // wait 4 seconds before starting next level
         setTimeout(() => {

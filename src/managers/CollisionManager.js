@@ -6,13 +6,13 @@ export default class CollisionManager {
         this.lives = lives;
         this.cookies = [];
         this.benches = [];
-        this.scooter = null;
+        this.scooters = [];
         this.terrain = null;
         this.trashcan = null;
     }
 
-    setScooter(scooter) {
-        this.scooter = scooter;
+    setScooters(scooters) {
+        this.scooters = scooters;
     }
 
     setCookies(cookies) {
@@ -35,12 +35,13 @@ export default class CollisionManager {
         // Update all objects first
         this.cookies.forEach(cookie => cookie.update(delta));
         this.benches.forEach(bench => bench.update(delta));
+        this.scooters.forEach(scooter => scooter.update(delta));
 
         if (isRewinding) return;
 
         this.checkCookieCollisions();
         this.checkBenchCollisions();
-        this.checkScooterCollision();
+        this.checkScooterCollisions();
     }
 
     checkCookieCollisions() {
@@ -102,20 +103,30 @@ export default class CollisionManager {
         }
     }
 
-    checkScooterCollision() {
-        if (this.squirrel.boundingBox && this.scooter.boundingBox && this.scooter.model) {
-            if (this.squirrel.boundingBox.intersectsBox(this.scooter.boundingBox)) {
-                this.lives.decrement();
-                this.startRewindAll();
+    checkScooterCollisions() {
+        for (let i = this.scooters.length - 1; i >= 0; i--) {
+            const scooter = this.scooters[i];
+            if (this.squirrel.boundingBox && scooter.boundingBox && scooter.model) {
+                if (this.squirrel.boundingBox.intersectsBox(scooter.boundingBox)) {
+                    console.log('scooter collision');
+                    this.lives.decrement();
+                    this.startRewindAll();
+                }
+            }
+
+            // despawn scooter when it's off screen
+            if (scooter.model && scooter.model.position.z > 50) {
+                scooter.remove();
+                this.scooters.splice(i, 1);
             }
         }
     }
 
     startRewindAll() {
-        this.scooter.startRewind();
         this.terrain.startRewind();
         this.cookies.forEach(cookie => cookie.startRewind());
         this.benches.forEach(bench => bench.startRewind());
+        this.scooters.forEach(scooter => scooter.startRewind());
         this.trashcan.startRewind();
     }
 } 
