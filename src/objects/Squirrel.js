@@ -47,6 +47,28 @@ export default class Squirrel {
             this.model.rotateY(Math.PI);
             this.scene.add(this.model);
 
+            // Squirrel brown
+            // this.model.traverse((child) => {
+            //     if (child.isMesh) {
+            //         child.material = new THREE.MeshStandardMaterial({ color: 0x8B5A2B });
+            //     }
+            // });
+
+            // Squirrel Fur
+            const furTexture = new THREE.TextureLoader().load('textures/squirrelFur.jpg');
+            furTexture.wrapS = furTexture.wrapT = THREE.RepeatWrapping;
+            furTexture.repeat.set(3, 3);
+
+            this.model.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = new THREE.MeshStandardMaterial({ 
+                        map: furTexture,
+                        roughness: 0.8,
+                        metalness: 0.2
+                    });
+                }
+            });
+
             this.boundingBox = new THREE.Box3().setFromObject(this.model);
 
             this.mixer = new THREE.AnimationMixer(this.model);
