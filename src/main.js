@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Squirrel from './objects/Squirrel.js';
 import Terrain from './objects/Terrain.js';
+import DynamicSky from './objects/Sky.js';
+import Stars from './objects/Stars.js';
 import SnackCounter from './objects/SnackCounter.js'
 import LivesCounter from './objects/LivesCounter.js';
 import DistanceCounter from './objects/DistanceCounter.js';
@@ -42,6 +44,8 @@ loadingManager.onError = function (url) {
 };
 
 const scene = new THREE.Scene();
+const sky = new DynamicSky(scene);
+let stars = null;
 
 let textMesh = null;
 
@@ -99,11 +103,18 @@ scene.fog = new THREE.FogExp2();
 function setDay() {
     scene.fog.color.set(0xadd8e6);
     scene.fog.density = 0.01;
+    sky.setDay();
 }
 
 function setNight() {
-    scene.fog.color.set(0x055478);
+    sky.hide();
+    scene.background = new THREE.Color(0x0a1442);
+    scene.fog.color.set(0x0a1442,);
     scene.fog.density = 0.02;
+
+    if (!stars) {
+        stars = new Stars(scene, 800, 175);
+    } 
 }
 
 // load game assets
@@ -150,7 +161,7 @@ if (currentLevel.environment == 'day') {
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
-
+    
     renderer.render(scene, camera);
 
     switch (state) {
