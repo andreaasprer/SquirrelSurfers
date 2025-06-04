@@ -4,7 +4,7 @@ export default class CollisionManager {
         this.squirrel = squirrel;
         this.score = score;
         this.lives = lives;
-        this.cookies = [];
+        this.snacks = [];
         this.benches = [];
         this.scooters = [];
         this.terrain = null;
@@ -15,8 +15,8 @@ export default class CollisionManager {
         this.scooters = scooters;
     }
 
-    setCookies(cookies) {
-        this.cookies = cookies;
+    setCookies(snacks) {
+        this.snacks = snacks;
     }
 
     setBenches(benches) {
@@ -33,34 +33,34 @@ export default class CollisionManager {
 
     update(delta, isRewinding) {
         // Update all objects first
-        this.cookies.forEach(cookie => cookie.update(delta));
+        this.snacks.forEach(snack => snack.update(delta));
         this.benches.forEach(bench => bench.update(delta));
         this.scooters.forEach(scooter => scooter.update(delta));
 
         if (isRewinding) return;
 
-        this.checkCookieCollisions();
+        this.checkSnackCollisions();
         this.checkBenchCollisions();
         this.checkScooterCollisions();
     }
 
-    checkCookieCollisions() {
-        for (let i = this.cookies.length - 1; i >= 0; i--) {
-            const cookie = this.cookies[i];
+    checkSnackCollisions() {
+        for (let i = this.snacks.length - 1; i >= 0; i--) {
+            const snack = this.snacks[i];
 
-            if (this.squirrel.boundingBox && cookie.boundingBox && cookie.model) {
-                if (this.squirrel.boundingBox.intersectsBox(cookie.boundingBox)) {
+            if (this.squirrel.boundingBox && snack.boundingBox && snack.model) {
+                if (this.squirrel.boundingBox.intersectsBox(snack.boundingBox)) {
                     this.score.increment();
-                    cookie.remove();
-                    this.cookies.splice(i, 1);
+                    snack.remove();
+                    this.snacks.splice(i, 1);
                     continue;
                 }
             }
 
             // despawn cookie when squirrel misses
-            if (cookie.model && cookie.model.position.z > 50) {
-                cookie.remove();
-                this.cookies.splice(i, 1);
+            if (snack.model && snack.model.position.z > 50) {
+                snack.remove();
+                this.snacks.splice(i, 1);
             }
         }
     }
@@ -124,7 +124,7 @@ export default class CollisionManager {
 
     startRewindAll() {
         this.terrain.startRewind();
-        this.cookies.forEach(cookie => cookie.startRewind());
+        this.snacks.forEach(snack => snack.startRewind());
         this.benches.forEach(bench => bench.startRewind());
         this.scooters.forEach(scooter => scooter.startRewind());
         this.trashcan.startRewind();

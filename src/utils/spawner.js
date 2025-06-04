@@ -3,19 +3,27 @@ import Cookie from "../objects/Cookie";
 import Scooter from "../objects/Scooter";
 import Bench from "../objects/Bench";
 import Trashcan from '../objects/Trashcan.js';
+import Acorn from "../objects/Acorn";
+import Pizza from "../objects/Pizza";
+import AcaiBowl from "../objects/AcaiBowl";
 
-export function spawnCookie(scene, cookies, renderer, camera, obstacleRange) {
+// spawn different types of snacks
+const SNACK_TYPES = [Cookie, Acorn, Pizza, AcaiBowl];
+
+export function spawnSnack(scene, snacks, renderer, camera, obstacleRange) {
     const laneX = LANES[Math.floor(Math.random() * LANES.length)];
     const zPos = Math.random() * (obstacleRange.max - obstacleRange.min) + obstacleRange.min;
 
-    const cookie = new Cookie(scene);
+    // randomly select a snack type
+    const SnackType = SNACK_TYPES[Math.floor(Math.random() * SNACK_TYPES.length)];
+    const snack = new SnackType(scene);
 
     const waitUntilLoaded = setInterval(() => {
-        if (cookie.model) {
-            cookie.model.position.set(laneX, 0, zPos);
+        if (snack.model) {
+            snack.model.position.set(laneX, 0, zPos);
             // Precompile the object
             renderer.compile(scene, camera);
-            cookies.push(cookie);
+            snacks.push(snack);
             clearInterval(waitUntilLoaded);
         }
     }, 50);

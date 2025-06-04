@@ -7,7 +7,7 @@ import Stars from './objects/Stars.js';
 import SnackCounter from './objects/SnackCounter.js'
 import LivesCounter from './objects/LivesCounter.js';
 import DistanceCounter from './objects/DistanceCounter.js';
-import { spawnBench, spawnCookie, spawnScooter, spawnTrashcan } from './utils/spawner.js';
+import { spawnBench, spawnSnack, spawnScooter, spawnTrashcan } from './utils/spawner.js';
 import CollisionManager from './managers/CollisionManager.js';
 import LevelParser from './utils/LevelParser.js';
 import { LEVELS } from './WorldConfig.js';
@@ -114,18 +114,18 @@ function setNight() {
 
     if (!stars) {
         stars = new Stars(scene, 800, 175);
-    } 
+    }
 }
 
 // load game assets
 const squirrel = new Squirrel(scene);
-const cookies = [];
+const snacks = [];
 const benches = [];
 const scooters = [];
 let trashcan = null;
 
 for (let i = 0; i < currentLevel.numCookies; i++) {
-    spawnCookie(scene, cookies, renderer, camera, currentLevel.obstacleRange);
+    spawnSnack(scene, snacks, renderer, camera, currentLevel.obstacleRange);
 }
 for (let i = 0; i < currentLevel.numBenches; i++) {
     spawnBench(scene, benches, renderer, camera, currentLevel.obstacleRange);
@@ -143,7 +143,7 @@ let distanceCounter = new DistanceCounter(terrain);
 
 // Initialize collision manager
 const collisionManager = new CollisionManager(scene, squirrel, score, lives);
-collisionManager.setCookies(cookies);
+collisionManager.setCookies(snacks);
 collisionManager.setBenches(benches);
 collisionManager.setScooters(scooters);
 collisionManager.setTrashcan(trashcan);
@@ -161,7 +161,7 @@ if (currentLevel.environment == 'day') {
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
-    
+
     renderer.render(scene, camera);
 
     switch (state) {
@@ -289,15 +289,15 @@ function prepareNextLevel() {
         else if (next.environment === 'night') setNight();
 
         // clear leftovers from previous level
-        cookies.forEach(c => c.remove());
+        snacks.forEach(s => s.remove());
         benches.forEach(b => b.remove());
         scooters.forEach(s => s.remove());
         trashcan.remove();
-        cookies.length = benches.length = scooters.length = 0;
+        snacks.length = benches.length = scooters.length = 0;
 
         // spawn new obstacles for the new level
         for (let i = 0; i < next.numCookies; i++) {
-            spawnCookie(scene, cookies, renderer, camera, next.obstacleRange);
+            spawnSnack(scene, snacks, renderer, camera, next.obstacleRange);
         }
         for (let i = 0; i < next.numBenches; i++) {
             spawnBench(scene, benches, renderer, camera, next.obstacleRange);
@@ -306,7 +306,7 @@ function prepareNextLevel() {
             spawnScooter(scene, scooters, renderer, camera, next.obstacleRange);
         }
         trashcan = spawnTrashcan(scene, renderer, camera, next.distance);
-        collisionManager.setCookies(cookies);
+        collisionManager.setCookies(snacks);
         collisionManager.setBenches(benches);
         collisionManager.setScooters(scooters);
         collisionManager.setTrashcan(trashcan);
