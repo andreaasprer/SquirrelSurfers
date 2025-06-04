@@ -15,7 +15,7 @@ export default class Scooter {
         // lane switching variables
         this.lanes = LANES;
         this.elapsedTime = 0;
-        this.moveSpeed = 1;
+        this.moveSpeed = Math.floor(Math.random() * 2) + 1;
         // random phase offset for each scooter
         this.phaseOffset = Math.random() * Math.PI * 2;
 
@@ -64,6 +64,7 @@ export default class Scooter {
             if (this.rewindRemaining <= 0) {
                 this.isRewinding = false;
             }
+            return;
         }
 
         // normal movement
@@ -74,7 +75,15 @@ export default class Scooter {
         const right = this.lanes[this.lanes.length - 1];
 
         const t = (Math.sin(this.elapsedTime * this.moveSpeed + this.phaseOffset) + 1) / 2;
-        this.model.position.x = THREE.MathUtils.lerp(left, right, t);
+        const newX = THREE.MathUtils.lerp(left, right, t);
+
+        // change direction of scooter when it reaches the end of the lane
+        const xDiff = newX - this.model.position.x;
+        if (Math.abs(xDiff) > 0.01) {
+            this.model.rotation.y = xDiff > 0 ? -Math.PI / 2 : Math.PI / 2;
+        }
+
+        this.model.position.x = newX;
 
         if (this.boundingBox) {
             this.boundingBox.setFromObject(this.model);
