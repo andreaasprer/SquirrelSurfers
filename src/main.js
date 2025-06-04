@@ -158,6 +158,21 @@ if (currentLevel.environment == 'day') {
     setNight();
 }
 
+function updateDistanceBar(distance, goalDistance) {
+    const progress = Math.max(0, Math.min(1, distance / goalDistance));
+    const bar = document.getElementById('distance-bar');
+    const fill = document.getElementById('distance-bar-fill');
+    const icon = document.getElementById('squirrel-icon');
+
+    const barWidth = bar.offsetWidth;
+    const iconWidth = icon.offsetWidth;
+
+    fill.style.width = `${progress * 100}%`;
+    let iconLeft = progress * barWidth - iconWidth / 2;
+    iconLeft = Math.max(0, Math.min(iconLeft, barWidth - iconWidth));
+    icon.style.left = `${iconLeft}px`;
+}
+
 function animate() {
     requestAnimationFrame(animate);
     const delta = clock.getDelta();
@@ -181,6 +196,7 @@ function animate() {
             squirrel.update(delta);
             trashcan.update(delta);
             distanceCounter.updateDistance();
+            updateDistanceBar(distanceCounter.getDistance(), levelParser.getGoalDistance());
             collisionManager.update(delta, terrain.isCurrentlyRewinding());
             break;
 
