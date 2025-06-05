@@ -43,6 +43,34 @@ loadingManager.onError = function (url) {
     loadingText.style.color = '#ff0000';
 };
 
+// Preload audio elements
+const bgm = new Audio('audio/backgroundSound.mp3');
+bgm.loop = true;
+bgm.volume = 0.4;
+
+const eatSound = new Audio('audio/eatingSound.wav');
+eatSound.volume = 0.3;
+const bumpSound = new Audio('audio/bumpSound.wav');
+bumpSound.volume = 0.3;
+
+let isMuted = false;
+
+
+const volumeBtn = document.getElementById('volume-btn');
+const volumeIcon = document.getElementById('volume-icon');
+
+volumeBtn.onclick = function () {
+    isMuted = !isMuted;
+    bgm.muted = isMuted;
+    eatSound.muted = isMuted;
+    bumpSound.muted = isMuted;
+    if (isMuted) {
+        volumeIcon.src = 'images/volumeOff.png';
+    } else {
+        volumeIcon.src = 'images/volumeOn.png';
+    }
+};
+
 const scene = new THREE.Scene();
 const sky = new DynamicSky(scene);
 let stars = null;
@@ -142,7 +170,7 @@ let distanceCounter = new DistanceCounter(terrain);
 
 
 // Initialize collision manager
-const collisionManager = new CollisionManager(scene, squirrel, score, lives);
+const collisionManager = new CollisionManager(scene, squirrel, score, lives, eatSound, bumpSound);
 collisionManager.setCookies(snacks);
 collisionManager.setBenches(benches);
 collisionManager.setScooters(scooters);
@@ -261,6 +289,7 @@ function onKeyPress(event) {
             if (state === GameState.START) {
                 state = GameState.PLAYING;
                 scene.remove(textMesh);
+                bgm.play();
             }
             break;
         case 'a':

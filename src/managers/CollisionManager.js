@@ -1,9 +1,11 @@
 export default class CollisionManager {
-    constructor(scene, squirrel, score, lives) {
+    constructor(scene, squirrel, score, lives, eatSound, bumpSound) {
         this.scene = scene;
         this.squirrel = squirrel;
         this.score = score;
         this.lives = lives;
+        this.eatSound = eatSound;
+        this.bumpSound = bumpSound;
         this.snacks = [];
         this.benches = [];
         this.scooters = [];
@@ -51,6 +53,11 @@ export default class CollisionManager {
             if (this.squirrel.boundingBox && snack.boundingBox && snack.model) {
                 if (this.squirrel.boundingBox.intersectsBox(snack.boundingBox)) {
                     this.score.increment(snack.points);
+                    // Snack sound 
+                    if (this.eatSound) {
+                        this.eatSound.currentTime = 0;
+                        this.eatSound.play();
+                    }
                     snack.remove();
                     this.snacks.splice(i, 1);
                     continue;
@@ -82,6 +89,11 @@ export default class CollisionManager {
                     } else if (!this.squirrel.isOnPlatform) {
                         // Only lose life if not already on platform and hitting bench from side
                         this.lives.decrement();
+                        // Bump Sound
+                        if (this.bumpSound) {
+                            this.bumpSound.currentTime = 0;
+                            this.bumpSound.play();
+                        }
                         this.startRewindAll();
                     }
                 }
@@ -110,6 +122,11 @@ export default class CollisionManager {
                 if (this.squirrel.boundingBox.intersectsBox(scooter.boundingBox)) {
                     console.log('scooter collision');
                     this.lives.decrement();
+                    // Bump Sound
+                    if (this.bumpSound) {
+                        this.bumpSound.currentTime = 0;
+                        this.bumpSound.play();
+                    }
                     this.startRewindAll();
                 }
             }

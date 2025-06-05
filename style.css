@@ -171,3 +171,25 @@
 .heart:first-child {
   margin-left: 10px;
 }
+
+#volume-btn {
+  position: fixed;         
+  bottom: 24px;            
+  left: 24px;              
+  z-index: 99;             
+  width: 32px;             
+  height: 32px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#volume-icon {
+  width: 100%;
+  height: 100%;
+  filter: invert(1) brightness(2) drop-shadow(0 0 4px white); 
+  pointer-events: none;     
+}
