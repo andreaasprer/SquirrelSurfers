@@ -71,24 +71,46 @@ scene.add(light);
 scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
 const fontLoader = new FontLoader();
+let startScreenMeshes = [];
+
+function createText(font, text, size, position, rotation = Math.PI / 12) {
+    const textGeometry = new TextGeometry(text, {
+        size: size,
+        depth: 1,
+        height: size * 2,
+        font: font,
+        curveSegments: 12,
+    });
+    textGeometry.center();
+    const textMaterial = new THREE.MeshBasicMaterial({ color: 0xf2f0ef });
+    const mesh = new THREE.Mesh(textGeometry, textMaterial);
+    mesh.position.set(position.x, position.y, position.z);
+    mesh.rotation.x = rotation;
+    scene.add(mesh);
+    startScreenMeshes.push(mesh);
+    return mesh;
+}
+
 fontLoader.load(
     '../fonts/BagelFatOne.json',
     (font) => {
-        const textGeometry = new TextGeometry('Press P to Play', {
-            size: 5,
-            depth: 1,
-            height: 10,
-            font: font,
-            curveSegments: 12,
+        textMesh = createText(font, 'Press P to Play', 5, { x: 0, y: 20, z: -40 });
+
+        createText(font, 'Help Nibbles get to his goal!', 2, { x: 0, y: 15, z: -40 });
+
+        // points for snacks
+        const pointInstructions = [
+            { text: 'Cookies: 1 Point', y: 12 },
+            { text: 'Acorns: 2 Points', y: 10 },
+            { text: 'Pizza: 3 Points', y: 8 },
+            { text: 'Acai Bowl: 5 Points', y: 6 }
+        ];
+
+        pointInstructions.forEach(instruction => {
+            createText(font, instruction.text, 1, { x: 0, y: instruction.y, z: -40 });
         });
-        textGeometry.center();
-        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xf2f0ef });
-        textMesh = new THREE.Mesh(textGeometry, textMaterial);
-        textMesh.position.set(0, 8, -40);
-        scene.add(textMesh);
     }
 )
-
 
 let state = GameState.START;
 const levelParser = new LevelParser(LEVELS);
@@ -278,13 +300,18 @@ function clearScene() {
 window.addEventListener('keydown', onKeyPress);
 
 function onKeyPress(event) {
-
     switch (event.key) {
         case 'p':
             // Start game on any key press if in START state
             if (state === GameState.START) {
                 state = GameState.PLAYING;
-                scene.remove(textMesh);
+                // remove all start screen text
+                startScreenMeshes.forEach(mesh => {
+                    if (mesh.geometry) mesh.geometry.dispose();
+                    if (mesh.material) mesh.material.dispose();
+                    scene.remove(mesh);
+                });
+                startScreenMeshes = [];
             }
             break;
         case 'a':
