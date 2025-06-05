@@ -10,6 +10,9 @@ export const velocity = 30;
 export const rewindDistance = 50;
 export const rewindSpeed = 50;
 
+// additional spacing between obstacles to prevent overlap
+export const MIN_OBSTACLE_SPACING = 40;
+
 export const LEVELS = [
     {
         name: 'Daytime',

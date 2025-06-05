@@ -128,10 +128,10 @@ for (let i = 0; i < currentLevel.numCookies; i++) {
     spawnSnack(scene, snacks, renderer, camera, currentLevel.obstacleRange);
 }
 for (let i = 0; i < currentLevel.numBenches; i++) {
-    spawnBench(scene, benches, renderer, camera, currentLevel.obstacleRange);
+    spawnBench(scene, benches, scooters, renderer, camera, currentLevel.obstacleRange);
 }
 for (let i = 0; i < currentLevel.numScooters; i++) {
-    spawnScooter(scene, scooters, renderer, camera, currentLevel.obstacleRange);
+    spawnScooter(scene, scooters, benches, renderer, camera, currentLevel.obstacleRange);
 }
 trashcan = spawnTrashcan(scene, renderer, camera, currentLevel.distance);
 
@@ -316,10 +316,10 @@ function prepareNextLevel() {
             spawnSnack(scene, snacks, renderer, camera, next.obstacleRange);
         }
         for (let i = 0; i < next.numBenches; i++) {
-            spawnBench(scene, benches, renderer, camera, next.obstacleRange);
+            spawnBench(scene, benches, scooters, renderer, camera, next.obstacleRange);
         }
         for (let i = 0; i < next.numScooters; i++) {
-            spawnScooter(scene, scooters, renderer, camera, next.obstacleRange);
+            spawnScooter(scene, scooters, benches, renderer, camera, next.obstacleRange);
         }
         trashcan = spawnTrashcan(scene, renderer, camera, next.distance);
         collisionManager.setCookies(snacks);
