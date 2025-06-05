@@ -11,7 +11,7 @@ export const rewindDistance = 50;
 export const rewindSpeed = 50;
 
 // additional spacing between obstacles to prevent overlap
-export const MIN_OBSTACLE_SPACING = 40;
+export const MIN_OBSTACLE_SPACING = 100;
 
 export const LEVELS = [
     {
@@ -31,7 +31,7 @@ export const LEVELS = [
         environment: 'night',
         distance: 100,
         numCookies: 30,
-        numBenches: 15,
+        numBenches: 12,
         numScooters: 8,
         obstacleRange: {
             min: -950,
