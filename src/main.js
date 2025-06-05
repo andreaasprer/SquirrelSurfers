@@ -228,6 +228,36 @@ function showGameOver() {
     gameOverScreen.insertBefore(finalScore, document.getElementById('restart-btn'));
 
     // clear scene
+    clearScene();
+
+    // add restart functionality
+    const restartBtn = document.getElementById('restart-btn');
+    restartBtn.onclick = () => {
+        location.reload();
+    };
+}
+
+function showFinishScreen() {
+    // display finish screen
+    const finishScreen = document.getElementById('finish-screen');
+    finishScreen.style.display = 'flex';
+
+    // display final score
+    const finalScoreText = document.getElementById('final-score-text');
+    finalScoreText.textContent = `Final Score: ${score.count}`;
+
+    // clear scene
+    clearScene();
+
+    // add play again functionality
+    const playAgainBtn = document.getElementById('play-again-btn');
+    playAgainBtn.onclick = () => {
+        location.reload();
+    };
+}
+
+function clearScene() {
+    // clear scene
     while (scene.children.length > 0) {
         const object = scene.children[0];
         if (object.geometry) {
@@ -242,12 +272,6 @@ function showGameOver() {
         }
         scene.remove(object);
     }
-
-    // add restart functionality
-    const restartBtn = document.getElementById('restart-btn');
-    restartBtn.onclick = () => {
-        location.reload();
-    };
 }
 
 // Keyboard Controls
@@ -295,7 +319,8 @@ function prepareNextLevel() {
         // finished all levels
         if (!next) {
             state = GameState.FINISHED;
-            // TODO: game over screen/scene???
+            loadingScreen.style.display = 'none';
+            showFinishScreen();
             return;
         }
 
