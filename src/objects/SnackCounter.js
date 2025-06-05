@@ -12,8 +12,8 @@ export default class SnackCounter {
         this.scoreDisplay = scoreDiv;
     }
 
-    increment() {
-        this.count += 1;
+    increment(points = 1) {
+        this.count += points;
         this.scoreDisplay.innerHTML = this.updateMessage();
     }
 

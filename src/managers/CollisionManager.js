@@ -50,7 +50,7 @@ export default class CollisionManager {
 
             if (this.squirrel.boundingBox && snack.boundingBox && snack.model) {
                 if (this.squirrel.boundingBox.intersectsBox(snack.boundingBox)) {
-                    this.score.increment();
+                    this.score.increment(snack.points);
                     snack.remove();
                     this.snacks.splice(i, 1);
                     continue;

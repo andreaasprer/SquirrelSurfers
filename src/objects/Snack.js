@@ -4,12 +4,13 @@ import { rewindDistance, rewindSpeed, velocity } from '../WorldConfig';
 import { loadingManager } from '../main.js';
 
 export default class Snack {
-    constructor(scene, modelPath, scale, yOffset) {
+    constructor(scene, modelPath, scale, yOffset, points = 1) {
         this.scene = scene;
         this.modelPath = modelPath;
         this.model = null;
         this.scale = scale;
         this.yOffset = yOffset;
+        this.points = points;
 
         this.boundingBox = null;
 
