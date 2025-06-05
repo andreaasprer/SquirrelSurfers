@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export default class Stars {
-    constructor(scene, numStars = 800, radius = 175) {
+    constructor(scene, numStars = 800, radius = 50) {
         this.scene = scene;
         this.geometry = new THREE.BufferGeometry();
         const positions = [];
@@ -21,7 +21,7 @@ export default class Stars {
             size: 3,             
             sizeAttenuation: false, 
             transparent: true,
-            opacity: 0.95
+            opacity: 0.99
         });
 
         this.stars = new THREE.Points(this.geometry, this.material);

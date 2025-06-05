@@ -55,7 +55,6 @@ bumpSound.volume = 0.3;
 
 let isMuted = false;
 
-
 const volumeBtn = document.getElementById('volume-btn');
 const volumeIcon = document.getElementById('volume-icon');
 
@@ -152,19 +151,21 @@ scene.fog = new THREE.FogExp2();
 
 function setDay() {
     scene.fog.color.set(0xadd8e6);
-    scene.fog.density = 0.01;
+    scene.fog.density = 0.007;
     sky.setDay();
 }
 
 function setNight() {
     sky.hide();
     scene.background = new THREE.Color(0x0a1442);
-    scene.fog.color.set(0x0a1442,);
-    scene.fog.density = 0.02;
+    scene.fog.color.set(0x10172a);
+    scene.fog.density = 0.01;
 
-    if (!stars) {
-        stars = new Stars(scene, 800, 175);
+    if (stars && stars.stars) {
+        scene.remove(stars.stars);
+        stars = null;
     }
+    stars = new Stars(scene, 800, 50);
 }
 
 // load game assets
