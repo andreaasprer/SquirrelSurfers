@@ -1,35 +1,30 @@
 export default class LivesCounter {
     constructor(squirrel) {
         this.squirrel = squirrel;
-        this.count = this.squirrel.getLivesCnt();
-
-        // insert snack counter HUD into HTML
-        let livesDiv = document.createElement("div");
-        livesDiv.id = "lives";
-        let livesText = document.createTextNode(this.updateMessage());
-        livesDiv.appendChild(livesText);
-        document.getElementById("hud").appendChild(livesDiv);
-
-        this.livesDisplay = livesDiv;
+        this.lives = this.squirrel.getLivesCnt();
+        this.heartsContainer = document.getElementById("hearts");
+        this._renderHearts();
     }
 
     decrement() {
-        if (this.count == 0) {
-            this.livesDisplay.innerHTML = this.gameOver();
-            return;
+        if (this.lives > 0) {
+            this.squirrel.loseLife();
+            this.lives--;
+            this._renderHearts();
         }
-
-        this.squirrel.loseLife();
-        this.livesDisplay.innerHTML = this.updateMessage();
-    }
-    
-    updateMessage() {
-        this.count = this.squirrel.getLivesCnt();
-        return "Lives: " + this.count;
     }
 
-    gameOver() {
-        return "Game Over";
+    // render hearts based on lives
+    _renderHearts() {
+        // empty hearts container
+        this.heartsContainer.innerHTML = "";
+
+        // for each life create a heart
+        for (let i = 0; i < this.lives; i++) {
+            let heart = document.createElement("img");
+            heart.src = "../../images/hearts.png";
+            heart.classList.add("heart");
+            this.heartsContainer.appendChild(heart);
+        }
     }
-    
 }
