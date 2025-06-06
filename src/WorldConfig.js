@@ -17,7 +17,7 @@ export const LEVELS = [
     {
         name: 'Daytime',
         environment: 'day',
-        distance: 100,
+        distance: 90,
         numCookies: 20,
         numBenches: 10,
         numScooters: 5,
@@ -29,7 +29,7 @@ export const LEVELS = [
     {
         name: 'Nighttime',
         environment: 'night',
-        distance: 100,
+        distance: 90,
         numCookies: 30,
         numBenches: 12,
         numScooters: 8,

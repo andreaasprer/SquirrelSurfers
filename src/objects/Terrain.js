@@ -110,4 +110,33 @@ export default class Terrain {
         this.isRewinding = false;
         this.rewindRemaining = 0;
     }
+
+    reset() {
+        // Remove all existing terrain pieces
+        for (let i = this.terrainPieces.length - 1; i >= 0; i--) {
+            const piece = this.terrainPieces[i];
+            this.scene.remove(piece);
+        }
+        this.terrainPieces = [];
+        
+        // Reset section counter
+        this.currentSection = 1;
+        
+        // Create new terrain pieces
+        this.createTerrainPiece(0);
+        this.createTerrainPiece(-0.625);
+        this.createTerrainPiece(-1.25);
+        this.createTerrainPiece(-2.875);
+        this.createTerrainPiece(-2.5);
+        this.createTerrainPiece(-3.125);
+        this.createTerrainPiece(-3.75);
+        this.createTerrainPiece(-4.375);
+        this.createTerrainPiece(-5);
+
+        // Reset other state
+        this.terrainCounter = 1;
+        this.totalDistanceCovered = 0;
+        this.isRewinding = false;
+        this.rewindRemaining = 0;
+    }
 } 

@@ -384,8 +384,12 @@ function prepareNextLevel() {
 
         loadingText.textContent = 'Loading next level...';
 
-        if (next.environment === 'day') setDay();
-        else if (next.environment === 'night') setNight();
+        if (next.environment === 'day') {
+            setDay();
+        } else if (next.environment === 'night') {
+            setNight();
+            terrain.reset(); // Reset terrain when switching to night mode
+        }
 
         // clear leftovers from previous level
         snacks.forEach(s => s.remove());
