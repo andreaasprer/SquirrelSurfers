@@ -8,11 +8,19 @@ export default class Terrain {
         this.scene = scene;
         this.terrainPieces = [];
         this.loader = new GLTFLoader(loadingManager);
+        this.currentSection = 1;
+        this.totalSections = 9; // Total number of terrain sections available
 
         // Create three terrain pieces at different positions
         this.createTerrainPiece(0);
-        this.createTerrainPiece(-110);
-        this.createTerrainPiece(-220);
+        this.createTerrainPiece(-0.625);
+        this.createTerrainPiece(-1.25);
+        this.createTerrainPiece(-2.875);
+        this.createTerrainPiece(-2.5);
+        this.createTerrainPiece(-3.125);
+        this.createTerrainPiece(-3.75);
+        this.createTerrainPiece(-4.375);
+        this.createTerrainPiece(-5);
 
         // rewind animation
         this.isRewinding = false;
@@ -26,12 +34,15 @@ export default class Terrain {
     }
 
     createTerrainPiece(zPosition) {
+        const sectionNumber = this.currentSection;
+        this.currentSection = this.currentSection + 1;
+        
         this.loader.load(
-            '../models/ThreeLane.glb',
+            `../models/Terrain/Section${sectionNumber}.glb`,
             (gltf) => {
                 const model = gltf.scene;
-                model.scale.set(1.1, 1, 5);
-                model.position.set(3, -1.7, zPosition);
+                model.scale.set(2.5, 2.5, 2.5);
+                model.position.set(27, -2.5, zPosition);
                 this.scene.add(model);
                 this.terrainPieces.push(model);
             },
@@ -39,7 +50,7 @@ export default class Terrain {
                 console.log((xhr.loaded / xhr.total * 100) + '% loaded');
             },
             (error) => {
-                console.error('An error happened while loading the terrain:', error);
+                console.error(`An error happened while loading terrain section ${sectionNumber}:`, error);
             }
         );
     }
@@ -72,10 +83,10 @@ export default class Terrain {
             piece.position.z += velocity * delta;
 
             // Reset position when piece moves too far
-            if (piece.position.z > 80) {
-                piece.position.z = -220;
-                this.terrainCounter++;
-            }
+            // if (piece.position.z > 80) {
+            //     piece.position.z = -220;
+            //     this.terrainCounter++;
+            // }
         }
 
         // Only increase distance during normal forward movement
