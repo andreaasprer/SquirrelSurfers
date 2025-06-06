@@ -83,6 +83,8 @@ camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 4)); // Limit pixel ratio
+renderer.powerPreference = "high-performance";
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -159,7 +161,7 @@ function setNight() {
     sky.hide();
     scene.background = new THREE.Color(0x0a1442);
     scene.fog.color.set(0x10172a);
-    scene.fog.density = 0.01;
+    scene.fog.density = 0.02;
 
     if (stars && stars.stars) {
         scene.remove(stars.stars);

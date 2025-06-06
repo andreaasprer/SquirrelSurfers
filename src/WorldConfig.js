@@ -22,7 +22,7 @@ export const LEVELS = [
         numBenches: 10,
         numScooters: 5,
         obstacleRange: {
-            min: -950,
+            min: -850,
             max: -50
         }
     },
@@ -34,7 +34,7 @@ export const LEVELS = [
         numBenches: 12,
         numScooters: 8,
         obstacleRange: {
-            min: -950,
+            min: -850,
             max: -50
         }
     }
